@@ -28,8 +28,10 @@
 | 電装 | メイン基板（STM32）、灯火・エンコーダ基板 | 自作 |
 | 電源 | 駆動用・信号用の 2 系統（Ni-MH 9.6 V ×2）、両系統の電圧・電流を測定 | |
 
-!!! placeholder "写真 P-14：車体全体（カウルを外した状態）"
-    斜め前上方から、内部の配置が分かる写真。ハードウェアの入口ページの扉に使う。
+<figure markdown>
+![SURGE Mark.2 の全体](../assets/img/car_whiteback.jpg){ loading=lazy }
+<figcaption>SURGE Mark.2。</figcaption>
+</figure>
 
 ## 各ページ
 

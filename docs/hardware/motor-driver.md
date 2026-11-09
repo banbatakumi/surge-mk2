@@ -38,12 +38,24 @@ flowchart LR
   SV --> FET["ゲートドライバ<br/>＋ MOSFET ×6"] --> M(("モータ"))
 ```
 
-!!! placeholder "写真 P-04：MD 基板 V4 の表と裏"
-    表面（部品面）と裏面を並べて真上から。主要部品（マイコン、ゲートドライバ、MOSFET、電流アンプ、AS5600）に
-    引き出し線で名前を付ける注記を後で重ねたい。
+<div class="sg-figrow" markdown>
 
-!!! placeholder "写真 P-05：モータの裏に MD 基板が付いている様子"
-    カバーを外した状態で、モータ・マウント・基板の位置関係が分かる角度から。AS5600 とモータ軸の磁石が向かい合う位置が分かると理想的。
+<figure markdown>
+![MD 基板の表](../assets/img/bldc_md_top.jpg){ loading=lazy }
+<figcaption>MD 基板（V4）の表（部品面）。</figcaption>
+</figure>
+
+<figure markdown>
+![MD 基板の裏](../assets/img/bldc_md_bottom.jpg){ loading=lazy }
+<figcaption>裏面。中央の IC が角度センサ AS5600 で、モータ軸の磁石と向かい合います。</figcaption>
+</figure>
+
+</div>
+
+<figure markdown>
+![モータの裏に MD 基板を付けた状態](../assets/img/wheel_unit_2.jpg){ loading=lazy }
+<figcaption>モータの裏に MD 基板を背負わせた状態。配線はこの基板から出ます。</figcaption>
+</figure>
 
 ## 設計の詳細
 

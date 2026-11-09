@@ -17,8 +17,6 @@ flowchart TB
   S8 -.->|車が動く| S1
 ```
 
-!!! placeholder "図 F-07：1 周の流れのイラスト"
-    上の流れを、車のイラストの上に番号付きで重ねた図。LiDAR → Raspberry Pi → STM32 → MD → タイヤの位置に ①〜⑧ を置く。
 
 ## ① 周りを測る — LiDAR
 

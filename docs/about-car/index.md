@@ -8,8 +8,10 @@
 !!! placeholder "動画 V-01：走行動画（周回）"
     コースを周回する様子。YouTube（@bambi_rcj）に上げたものを埋め込む想定。30 秒〜1 分程度で、車載ではなく外からの視点。
 
-!!! placeholder "写真 P-15：車体のメイン写真（カウル付き）"
-    斜め前 45° から、背景は無地。サイト全体の顔になる写真。
+<figure markdown>
+![SURGE Mark.2 のメイン写真](../assets/img/car_blackback.jpg){ loading=lazy }
+<figcaption>SURGE Mark.2。前方のライトは灯火・エンコーダ基板で光らせています。</figcaption>
+</figure>
 
 ## 主要な数字
 

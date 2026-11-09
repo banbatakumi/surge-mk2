@@ -24,11 +24,11 @@
 
 取付位置は [`vehicle.toml`][vehicle-toml] の `[sensors.*]`（後車軸の中心が原点、x が前、z が上）です。
 
-!!! placeholder "写真 P-11：LiDAR まわり"
-    LiDAR が車体のどこに、どの向きで付いているかが分かる写真。
+<figure markdown>
+![LiDAR と前方カメラ](../assets/img/lidar_camera.jpg){ loading=lazy }
+<figcaption>車体の上の LiDAR と、その下の前方カメラ。</figcaption>
+</figure>
 
-!!! placeholder "写真 P-12：前方カメラと前方超音波"
-    車体の正面から。カメラと超音波センサの位置関係が分かるもの。
 
 ## 設計の詳細
 

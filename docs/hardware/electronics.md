@@ -33,12 +33,11 @@ flowchart LR
   IMU --- STM
 ```
 
-!!! placeholder "図 F-06：電源と信号の配線図（清書版）"
-    上の Mermaid 図を、実際のコネクタ・ヒューズ・電流センサの位置まで入れて描き直したもの。
-    駆動系と信号系を色分けすると、「片方だけ落ちる」ことが伝わりやすい。
 
-!!! placeholder "写真 P-13：制御基板（MainBoard）の表"
-    STM32・DC-DC・IMU・コネクタ類が見えるように真上から。Raspberry Pi との位置関係が分かる写真もあると良い。
+<figure markdown>
+![メイン基板](../assets/img/mainboard.jpg){ loading=lazy }
+<figcaption>メイン基板（MainBoard_V3_2）。STM32F446RE を載せ、Raspberry Pi 5 の上に重ねています。</figcaption>
+</figure>
 
 ### 2 系統の電源
 
@@ -78,8 +77,10 @@ STM32 を載せた自作の基板です。KiCad で設計し、JLCPCB に発注�
 **ヘッドライト・ブレーキランプ・方向指示器**と、**前輪のエンコーダ（AS5600）**をまとめた自作の基板です（`Circuit/OtherBoard_V1`）。
 前輪の車速を測る角度センサは、この基板に載っています（[シャシーと足まわり](chassis.md#前輪--回るネジが車軸になる)）。
 
-!!! placeholder "写真 P-17：灯火・エンコーダ基板"
-    ヘッドライトやブレーキランプが点いている状態の車体の前後と、基板単体の写真。
+<figure markdown>
+![ヘッドライト](../assets/img/headlight.jpg){ loading=lazy }
+<figcaption>前方のヘッドライト。</figcaption>
+</figure>
 
 ### Raspberry Pi と STM32 のつなぎ方
 

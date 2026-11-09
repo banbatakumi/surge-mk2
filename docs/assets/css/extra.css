@@ -128,3 +128,13 @@
 /* 「要点」は差し色の細い線だけにして、背景は淡く */
 .md-typeset .admonition.summary { background-color: rgba(255,106,19,.05); }
 .md-typeset .summary > .admonition-title { background-color: transparent; }
+
+/* ───────── 写真・図 ───────── */
+.md-typeset figure { margin: 1.2rem auto; }
+.md-typeset figure img { border-radius: .4rem; display: block; width: 100%; height: auto; }
+.md-typeset figcaption { font-size: .66rem; line-height: 1.6; opacity: .8; margin-top: .4rem; max-width: none; }
+.sg-figrow { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; align-items: start; }
+.sg-figrow > figure { margin: .6rem 0; }
+@media screen and (max-width: 44.9375em) { .sg-figrow { grid-template-columns: 1fr; } }
+/* 1 枚だけの写真は本文幅いっぱいにしない（縦に長くなりすぎる） */
+.md-typeset > figure, .md-typeset .sg-home figure { max-width: 34rem; }

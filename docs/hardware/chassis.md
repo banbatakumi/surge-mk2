@@ -19,26 +19,39 @@
 
 いずれも [`vehicle.toml`][vehicle-toml] の実測値です（2026-08-20 確定）。
 
-!!! placeholder "写真 P-07：車体を真上・真横から"
-    カウルを外した状態で、真上と真横の 2 枚。背景は無地で、可能なら定規かメジャーを一緒に写す。
+<div class="sg-figrow" markdown>
 
-!!! placeholder "図 F-03：車体の寸法図"
-    真上と真横の線画に、全長・全幅・ホイールベース・トレッドを記入したもの。3D データから書き出せる。
+<figure markdown>
+![車体を真上から](../assets/img/car_top.jpg){ loading=lazy }
+<figcaption>真上から。</figcaption>
+</figure>
+
+<figure markdown>
+![車体を真横から](../assets/img/car_side.jpg){ loading=lazy }
+<figcaption>真横から。</figcaption>
+</figure>
+
+</div>
+
 
 ### シャシー
 
 主となる板は、厚さ 3 mm のアルミ板です。
 その上に、制御基板・Raspberry Pi 5・LiDAR・バッテリーなどを載せています。
 
-!!! placeholder "写真 P-08：アルミシャシー単体"
-    部品を載せる前の板、またはシャシーの裏面。加工の様子が分かるもの。
+<figure markdown>
+![車体の裏側](../assets/img/car_bottom.jpg){ loading=lazy }
+<figcaption>車体の裏側。アルミのシャシーと、駆動用・信号用の 2 本のバッテリー。</figcaption>
+</figure>
 
 ### サスペンション
 
 前後とも**ダブルウィッシュボーン**です。上下 2 本のアームで車輪を支え、**ラジコン用のオイルダンパー**でばねと減衰を受け持たせています。
 
-!!! placeholder "写真 P-09：後輪のサスペンション"
-    後ろから見て、上下のアーム・ダンパー・インホイールユニットの位置関係が分かるもの。
+<figure markdown>
+![後輪のサスペンション](../assets/img/rear_suspention.jpg){ loading=lazy }
+<figcaption>後輪のサスペンション。</figcaption>
+</figure>
 
 ## 設計の詳細
 
@@ -59,8 +72,10 @@
 !!! placeholder "図 F-04：前輪の断面図"
     ナックル・ベアリング 2 個・回るネジ・磁石付きのナット・角度センサの位置関係を、車軸を通る断面で。3D データから断面を書き出せる。
 
-!!! placeholder "写真 P-10：前輪まわりの拡大"
-    ナックルと、ネジの先端の磁石付きナットが見える角度から。
+<figure markdown>
+![前輪まわり](../assets/img/front_suspention.jpg){ loading=lazy }
+<figcaption>前輪まわり。上下 2 本のアームで支えるダブルウィッシュボーン。</figcaption>
+</figure>
 
 ### 前輪の角度センサの使い方
 
