@@ -69,8 +69,10 @@
 つまり、**ネジそのものが車輪と一緒に回ります**。ネジの先端の磁石が車輪と同じだけ回るので、その回転を磁気式の角度センサ（AS5600）で読めば、車輪の角度が分かります。
 角度センサは、灯火と一緒にまとめた自作の基板（OtherBoard）に載っています（[電装と電源](electronics.md#灯火エンコーダ基板otherboard)）。
 
-!!! placeholder "図 F-04：前輪の断面図"
-    ナックル・ベアリング 2 個・回るネジ・磁石付きのナット・角度センサの位置関係を、車軸を通る断面で。3D データから断面を書き出せる。
+<figure markdown>
+![前輪の断面図](../assets/fig/front_section.svg){ loading=lazy }
+<figcaption>左前輪を、車軸を通る面で切った断面（3D データから作図）。回るネジがベアリング 2 個を通り、先端の磁石付きナットが車輪と一緒に回ります。角度センサの基板は 3D データに含まれないため、位置を点線で示しています。</figcaption>
+</figure>
 
 <figure markdown>
 ![前輪まわり](../assets/img/front_suspention.jpg){ loading=lazy }

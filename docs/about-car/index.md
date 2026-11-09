@@ -5,8 +5,9 @@
     - 後輪は**インホイール・ダイレクトドライブ**で、左右の後輪のトルクを 1 輪ずつ制御します。
     - 頭脳は Raspberry Pi 5（判断）と STM32（リアルタイム制御）の 2 つで、Raspberry Pi が止まっても STM32 が単独で車を止めます。
 
-!!! placeholder "動画 V-01：走行動画（周回）"
-    コースを周回する様子。YouTube（@bambi_rcj）に上げたものを埋め込む想定。30 秒〜1 分程度で、車載ではなく外からの視点。
+<div class="sg-video">
+<iframe src="https://www.youtube-nocookie.com/embed/Tv3HFxTQJk8" title="SURGE Mark.2 の走行動画" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>
+</div>
 
 <figure markdown>
 ![SURGE Mark.2 のメイン写真](../assets/img/car_blackback.jpg){ loading=lazy }

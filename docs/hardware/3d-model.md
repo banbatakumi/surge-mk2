@@ -33,7 +33,7 @@
 
 | ファイル | 形式 | 大きさ |
 |---|---|---|
-| [surge_mk2_step.zip](https://github.com/banbatakumi/surge-mk2/releases/latest/download/surge_mk2_step.zip) | STEP（AP214）を ZIP で圧縮 | 約 9 MB（展開後 約 61 MB） |
+| [surge_mk2_step.zip](https://github.com/banbatakumi/surge-mk2/releases/latest/download/surge_mk2_step.zip) | STEP（AP214）を ZIP で圧縮 | 約 9 MB（展開後 約 62 MB） |
 
 STEP は Fusion から書き出したもので、ネジ・スペーサ・基板の部品まで含みます。
 基板の設計データ（KiCad・ガーバー）は [部品表](bom.md#自作部品の設計データ) にまとめています。
@@ -43,7 +43,8 @@ STEP は Fusion から書き出したもので、ネジ・スペーサ・基板�
 ページに埋め込んでいるモデルは、STEP から次の手順で作っています（手順とスクリプトはこのサイトのリポジトリの `tools/cad/`）。
 
 1. OpenCASCADE（`cadquery-ocp`）で STEP を読み、面を三角形に分割して glTF（GLB）に書き出す（約 32 MB）。
-2. `gltf-transform` で形状を間引き、Draco で圧縮する（約 1.6 MB）。
-3. インホイール部だけを切り出し、分解した状態のモデルも作る（[インホイール・ダイレクトドライブ](in-wheel-drive.md)）。
+2. 書き出したままだと全部の部品が金属の質感になり、黒い部品が真っ黒に見えるので、樹脂らしい質感に直す。
+3. `gltf-transform` で形状を間引き、Draco で圧縮する（約 1.7 MB）。
+4. インホイール部だけを切り出し、分解した状態のモデルも作る（[インホイール・ダイレクトドライブ](in-wheel-drive.md)）。
 
 表示には Google の [`<model-viewer>`](https://modelviewer.dev/) を使っています。
