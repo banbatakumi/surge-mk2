@@ -30,8 +30,10 @@ flowchart LR
 - **固定距離の緊急停止は持ちません。** 近づきすぎたときの停止は STM32 の自動停止（速度に応じて伸びる停止距離）に任せます。
   ただし「どこへも進めない」と分かったときは、計画の失敗として止まります。
 
-!!! placeholder "画面 S-02：反射型モードで走っているときの自動運転タブ"
-    LiDAR の俯瞰に、選んだ方向（狙点）と予定進路が重なっている画面。できれば DE で、塗り潰した範囲が分かる表示があればそれも。
+<figure class="sg-wide" markdown>
+![Disparity Extender で走行中の自動運転タブ](../../assets/img/gui/S-02.jpg){ loading=lazy }
+<figcaption>Disparity Extender で走行中。右上の LiDAR の画面に向かう方向が、下の「判断」に「−90° の見通し 2.04m へ」と理由が出る（シミュレータで撮影）。シミュレータではカメラの映像は出ない。</figcaption>
+</figure>
 
 ### Follow the Gap
 

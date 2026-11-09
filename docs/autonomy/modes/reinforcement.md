@@ -31,8 +31,19 @@ flowchart LR
 シミュレータの仮想 LiDAR は、実機と同じ形のデータを作り、**実機と同じ組み立て処理**（裏向き実装による鏡像の反転、欠測の扱い）を通してから方策に渡します。
 学習と実車で「点群の意味」がずれないようにするためです。観測・行動の変換も、学習側と実車側で対になる関数にまとめています。
 
-!!! placeholder "画面 S-09：強化学習の操作パネル（ml_lidar）"
-    学習タブ（基本パラメータ）と、学習中の方策がコースを走る観戦画面。学習曲線（TensorBoard）も撮れれば並べたい。
+<div class="sg-figrow" markdown>
+
+<figure markdown>
+![強化学習の操作パネル](../../assets/img/gui/S-09a.jpg){ loading=lazy }
+<figcaption>学習タブ。学習の規模・制御周期・最高速度などを決める。</figcaption>
+</figure>
+
+<figure markdown>
+![学習した方策の観戦](../../assets/img/gui/S-09b.jpg){ loading=lazy }
+<figcaption>観戦。自動生成したコースを方策が走る様子（橙の破線は最小曲率の理想ライン、赤い点は LiDAR）。</figcaption>
+</figure>
+
+</div>
 
 ## 設計の詳細
 

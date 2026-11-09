@@ -20,8 +20,10 @@ flowchart LR
   E --> F["掃引で安全確認<br/>塞がれたら引き直す"]
 ```
 
-!!! placeholder "画面 S-14：駐車の指定と経路"
-    LiDAR の画面で目標の位置と向きをドラッグで指定し、Hybrid A* の経路（前進・後退の区間）が重なっている画面。
+<figure markdown>
+![駐車の目標と経路](../../assets/img/gui/S-14.jpg){ loading=lazy }
+<figcaption>LiDAR の画面で目標（橙の矢印）をドラッグで置くと、後退してから前進で入る経路（桃色）を引く。この例では残り 2.4 cm・向きの誤差 3.6° で到達した（シミュレータで撮影）。</figcaption>
+</figure>
 
 ## 設計の詳細
 

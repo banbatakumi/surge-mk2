@@ -63,9 +63,10 @@
 | [対象を追う](follow.md) | `follow_object` | 映像で選んだ相手との距離を保って付いていく |
 | [駐車する](park.md) | `park_to_point` | クリックした位置と向きへ、障害物を避けて入る |
 
-!!! placeholder "画面 S-01：自動運転タブのモード選択とパラメータ"
-    自動運転タブで、モードの一覧を開いた状態と、あるモード（例: Disparity Extender）のパラメータのスライダが見える状態。
-    「パラメータを宣言すれば GUI のスライダが自動で出る」ことが伝わる画面。
+<figure markdown>
+![自動運転タブのモードとパラメータ](../../assets/img/gui/S-01.jpg){ loading=lazy }
+<figcaption>Disparity Extender を選んだところ。12 個のパラメータのスライダは、走行モードの宣言から自動で作られる（シミュレータで撮影）。</figcaption>
+</figure>
 
 [auto-dir]: https://github.com/banbatakumi/AutonomousCar_RasPi/tree/master/surge_mk2/raspi/auto
 [base-py]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/raspi/auto/base.py

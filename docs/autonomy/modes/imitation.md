@@ -61,17 +61,25 @@ flowchart LR
 
 **②と⑥を往復するのが基本**です。誤差が大きい場面は、たいてい手本の側が悪い（そこだけ違う操作をしている）からです。
 
-!!! placeholder "画面 S-05：② 確認・選別タブ"
-    映像と舵・速度の時系列が並び、除外した範囲が色で分かる状態。
+<figure markdown>
+![模倣学習の確認・選別タブ](../../assets/img/gui/S-05.jpg){ loading=lazy }
+<figcaption>② 確認・選別。映像に手本の舵（矢印）と速度を重ね、下の時系列で手本にしない区間を選んで外す。赤が外した区間、灰色は止まっている・下がっているので自動で外れる区間。</figcaption>
+</figure>
 
-!!! placeholder "画面 S-06：③ 偏りタブ"
-    舵の分布のヒストグラム（直進に偏っている様子）と、記録ごとの内訳。
+<figure markdown>
+![模倣学習の偏りタブ](../../assets/img/gui/S-06.jpg){ loading=lazy }
+<figcaption>③ 偏り。灰色の棒が実際の枚数、青い線が直進過多の補正後に学習で選ばれる見込み。記録ごとの内訳も出る。</figcaption>
+</figure>
 
-!!! placeholder "画面 S-07：④ 学習タブ"
-    学習曲線（学習と検証の誤差）が見える状態。
+<figure markdown>
+![模倣学習の学習タブ](../../assets/img/gui/S-07.jpg){ loading=lazy }
+<figcaption>④ 学習。設定と学習曲線（赤が学習の損失、青が検証データでの舵の誤差）。</figcaption>
+</figure>
 
-!!! placeholder "画面 S-08：⑥ 評価タブ"
-    予測と手本の舵の時系列が重なり、誤差の大きい場面の一覧と「ずれへの応答 dδ/dψ」が見える状態。
+<figure markdown>
+![模倣学習の評価タブ](../../assets/img/gui/S-08.jpg){ loading=lazy }
+<figcaption>⑥ 評価。手本の舵（青）とモデルの予測（橙）を映像と時系列で並べ、誤差の大きい場面を一覧にする。場面から②へ飛んで手本を見直せる。</figcaption>
+</figure>
 
 ## 設計の詳細
 
