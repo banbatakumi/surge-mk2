@@ -1,0 +1,124 @@
+site_name: SURGE Mark.2
+site_description: インホイール・ダイレクトドライブの自律走行ミニカー SURGE Mark.2 の設計と技術
+site_url: https://banbatakumi.github.io/surge-mk2/
+repo_url: https://github.com/banbatakumi/surge-mk2
+repo_name: surge-mk2
+edit_uri: edit/master/docs/
+docs_dir: docs
+site_dir: build
+
+theme:
+  name: material
+  custom_dir: overrides
+  language: ja
+  font: false   # 外部フォントを読まず端末のフォントで表示する
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - navigation.top
+    - navigation.footer
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+    - content.tooltips
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: ダークモードへ
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: ライトモードへ
+
+plugins:
+  - search:
+      lang: ja
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - footnotes
+  - toc:
+      permalink: true
+      # 見出しが日本語でもアンカーを作る（既定の slugify は非 ASCII を落とす）
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.details
+  - pymdownx.snippets:
+      # 用語のツールチップ（*[略語]: 説明）を全ページに自動で付ける
+      auto_append:
+        - includes/glossary.md
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_css:
+  - assets/css/extra.css
+
+extra_javascript:
+  - assets/js/mathjax.js
+  - https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js
+  - assets/js/site.js
+
+nav:
+  - ホーム: index.md
+  - SURGE Mark.2 とは:
+      - about-car/index.md
+      - 生まれた理由とこだわり: about-car/story.md
+      - 1 周を追いかける: about-car/tour.md
+      - 走らせ方の一覧: about-car/modes.md
+      - システム構成: about-car/system.md
+  - ハードウェア:
+      - hardware/index.md
+      - インホイール・ダイレクトドライブ: hardware/in-wheel-drive.md
+      - 自作モータドライバと FOC: hardware/motor-driver.md
+      - ステアリング: hardware/steering.md
+      - シャシーと足まわり: hardware/chassis.md
+      - センサ: hardware/sensors.md
+      - 電装と電源: hardware/electronics.md
+      - 部品表（BOM）: hardware/bom.md
+      - 3D データ: hardware/3d-model.md
+  - 制御:
+      - 構成と制御周期: control/index.md
+      - 駆動制御（車速 PI）: control/drive.md
+      - スリップ制御（TC・ABS）: control/traction.md
+      - トルクベクタリング: control/torque-vectoring.md
+      - 安全層とフェイルセーフ: control/safety.md
+      - UART プロトコル: control/protocol.md
+  - 自動運転:
+      - ノード構成と内部バス: autonomy/index.md
+      - 走行モード: autonomy/modes.md
+      - 地図と自己位置推定: autonomy/mapping.md
+      - レーシングライン: autonomy/raceline.md
+      - 経路追従と速度指令: autonomy/tracking.md
+      - 上位の安全設計: autonomy/safety.md
+  - 開発の進め方:
+      - 検証の仕組み: development/workflow.md
+      - 検証状況: development/status.md
+      - 設計上の教訓: development/lessons.md
+  - 資料:
+      - 主要諸元: reference/specs.md
+      - 用語集: reference/glossary.md
+      - リポジトリの案内: reference/repositories.md
+      - このサイトについて: reference/about.md

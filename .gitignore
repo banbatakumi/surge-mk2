@@ -1,0 +1,6 @@
+.venv/
+build/
+__pycache__/
+.DS_Store
+# STEP の ZIP は GitHub Release に添付する（履歴を重くしない）
+cad/

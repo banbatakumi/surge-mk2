@@ -1,0 +1,38 @@
+{#- ホーム専用のテンプレート。index.md の front matter `template: home.html` で使う。
+    ヒーロー（3D モデル＋一言）→ 本文（index.md）の順に出す。 -#}
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+  <section class="sg-hero">
+    <div class="sg-hero__inner">
+      <div class="sg-hero__text">
+        <p class="sg-hero__eyebrow">Autonomous RC car / Raspberry Pi 5 + STM32</p>
+        <h1 class="sg-hero__title">SURGE Mark.2</h1>
+        <p class="sg-hero__lead">
+          タイヤの中にモータを収めた<strong>インホイール・ダイレクトドライブ</strong>。<br>
+          左右の後輪を 1 輪ずつ N·m 単位で制御する、自律走行ミニカーです。
+        </p>
+        <div class="sg-hero__actions">
+          <a class="sg-btn sg-btn--primary" href="{{ 'hardware/in-wheel-drive/' | url }}">インホイール駆動を見る</a>
+          <a class="sg-btn" href="{{ 'about-car/' | url }}">この車について</a>
+        </div>
+      </div>
+      <div class="sg-hero__model">
+        <model-viewer src="{{ 'assets/3d/car.glb' | url }}"
+                      alt="SURGE Mark.2 の 3D モデル"
+                      camera-controls touch-action="pan-y" auto-rotate auto-rotate-delay="0" rotation-per-second="12deg"
+                      camera-orbit="35deg 68deg auto" environment-image="neutral" exposure="1.25"
+                      shadow-intensity="0.8" interaction-prompt="none" loading="eager">
+        </model-viewer>
+        <p class="sg-hero__hint">ドラッグで回転・ピンチで拡大</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+
+{% block content %}
+  <div class="sg-home">{{ super() }}</div>
+{% endblock %}
+
+{#- model-viewer 本体は assets/js/site.js が読み込む -#}
