@@ -1,0 +1,10 @@
+import { chromium } from 'playwright'; import fs from 'fs';
+const b = await chromium.launch({ channel: 'chrome' });
+const p = await b.newPage();
+p.on('console', m => { if (m.type()==='error') console.log('ERR', m.text()); });
+await p.goto('http://127.0.0.1:8773/?pxm=3000');
+await p.waitForFunction(() => window.DONE, null, { timeout: 90000 });
+const d = await p.evaluate(() => window.DONE);
+fs.writeFileSync(process.argv[2], Buffer.from(d.url.split(',')[1], 'base64'));
+console.log(JSON.stringify({ ...d, url: undefined }));
+await b.close();

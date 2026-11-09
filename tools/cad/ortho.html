@@ -1,0 +1,24 @@
+<!doctype html><html><body style="margin:0;background:#fff">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+const P = new URLSearchParams(location.search);
+const view = P.get('view') || 'top';
+// 画面の範囲 [m]（モデル座標: X=左, Y=上, Z=前）
+const X0=-0.13, X1=0.13, Z0=-0.235, Z1=0.225, PXM = +(P.get('pxm')||3000); // px / m
+const W = Math.round((X1-X0)*PXM), H = Math.round((Z1-Z0)*PXM);
+const r = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
+r.setPixelRatio(1); r.setSize(W, H); r.setClearColor(0xffffff, 0); document.body.appendChild(r.domElement);
+r.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.add(new THREE.HemisphereLight(0xffffff, 0x888888, 2.2));
+const d = new THREE.DirectionalLight(0xffffff, 1.6); d.position.set(0.3, 1, 0.4); scene.add(d);
+// 真上から見下ろし、前（+Z）を画像の上にする。左（+X）が画像の左に来るよう、カメラの right を -X にとる
+const cam = new THREE.OrthographicCamera(-(X1-X0)/2, (X1-X0)/2, (Z1-Z0)/2, -(Z1-Z0)/2, 0.01, 2);
+cam.position.set((X0+X1)/2, 1, (Z0+Z1)/2); cam.up.set(0, 0, 1); cam.lookAt((X0+X1)/2, 0, (Z0+Z1)/2);
+const dl = new DRACOLoader(); dl.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+const gl = new GLTFLoader(); gl.setDRACOLoader(dl);
+gl.load('car.glb', g => { scene.add(g.scene); r.render(scene, cam); window.DONE = { W, H, X0, X1, Z0, Z1, PXM, url: r.domElement.toDataURL('image/png') }; });
+</script></body></html>
