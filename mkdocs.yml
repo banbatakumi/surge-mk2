@@ -108,12 +108,22 @@ nav:
       - UART プロトコル: control/protocol.md
   - 自動運転:
       - ノード構成と内部バス: autonomy/index.md
-      - 走行モード: autonomy/modes.md
+      - 走行モード:
+          - autonomy/modes/index.md
+          - LiDAR で空いている方向へ: autonomy/modes/lidar-reactive.md
+          - カメラで道を見る: autonomy/modes/camera.md
+          - 模倣学習（カメラ E2E）: autonomy/modes/imitation.md
+          - 強化学習（LiDAR E2E）: autonomy/modes/reinforcement.md
+          - 地図を作って走る: autonomy/modes/map-driving.md
+          - 対象を追う: autonomy/modes/follow.md
+          - 駐車する: autonomy/modes/park.md
       - 地図と自己位置推定: autonomy/mapping.md
       - レーシングライン: autonomy/raceline.md
       - 経路追従と速度指令: autonomy/tracking.md
       - 上位の安全設計: autonomy/safety.md
   - 開発の進め方:
+      - 操作画面（Web GUI）: development/gui.md
+      - 補助ツール: development/tools.md
       - 検証の仕組み: development/workflow.md
       - 検証状況: development/status.md
       - 設計上の教訓: development/lessons.md

@@ -81,7 +81,9 @@ python3 tools/check_links.py    # ページ内リンク・アンカーの切れ�
 | `vehicle.c` / `heartbeat.c` / `power.h` | [安全層](../control/safety.md) |
 | `protocol.toml` / `ras_link.h` | [UART プロトコル](../control/protocol.md) |
 | `io_node.py` / `telemetry_node.py` | [上位の安全設計](../autonomy/safety.md)、[ノード構成](../autonomy/index.md) |
-| `raspi/auto/` / `raspi/nav/` / `slam2d/` | [走行モード](../autonomy/modes.md)、[地図](../autonomy/mapping.md)、[レーシングライン](../autonomy/raceline.md)、[追従](../autonomy/tracking.md) |
+| `ml_cam_e2e/` / `ml_lidar/` / `ml_cam/` | [模倣学習](../autonomy/modes/imitation.md)、[強化学習](../autonomy/modes/reinforcement.md)、[カメラ](../autonomy/modes/camera.md)。拡張の図は `tools/fig_yaw_aug.py` で作り直す |
+| `gui/` / `tools/launcher.py` | [操作画面](../development/gui.md)、[補助ツール](../development/tools.md) |
+| `raspi/auto/` / `raspi/nav/` / `slam2d/` | [走行モード](../autonomy/modes/index.md)、[地図](../autonomy/mapping.md)、[レーシングライン](../autonomy/raceline.md)、[追従](../autonomy/tracking.md) |
 | 実機で何かを確かめた | [検証状況](../development/status.md) |
 
 ## この作成中に見つけた食い違い

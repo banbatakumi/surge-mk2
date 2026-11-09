@@ -28,7 +28,7 @@ Pi 側は**ノードごとに別プロセス**で、ZeroMQ の PUB/SUB と共有
 | `logger_node` | バス全体 | mcap ファイル | 記録 |
 | `replay_node` | `.sfl` 記録 | `io_node` と同じバスの出力 | 記録の再生（実機なしの開発用） |
 
-`planning_node` の**アルゴリズム自体は `raspi/auto/` にあり**、ノードは配線だけを持ちます（[走行モード](modes.md)）。
+`planning_node` の**アルゴリズム自体は `raspi/auto/` にあり**、ノードは配線だけを持ちます（[走行モード](modes/index.md)）。
 
 ## バスの設計
 

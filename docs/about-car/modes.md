@@ -10,13 +10,13 @@
 
 | 系統 | 方式 | 使うセンサ | 地図 |
 |---|---|---|---|
-| **LiDAR で空いている方向を探す** | Follow the Gap、Disparity Extender、Disparity Pursuit | LiDAR | 不要 |
-| **カメラで道を見る** | 走行可能な領域の中心線を追う、白線のライントレース、カメラ版の Follow the Gap | カメラ | 不要 |
-| **学習した方策で走る** | カメラ画像から操舵を学ぶ模倣学習（カメラ E2E）、シミュレータで強化学習した方策（LiDAR E2E） | カメラ／LiDAR | 不要 |
-| **地図を作って周回する** | 地図を作り、道路のつながりから経路を選んで周回する。分岐のあるコースにも対応 | LiDAR ＋ IMU ＋ 車速 | **作る** |
-| **人や目的地に合わせる** | 映像上で選んだ対象との距離を保って追う、指定した位置と向きに駐車する | カメラ ＋ LiDAR／LiDAR | 不要／局所のみ |
+| **[LiDAR で空いている方向を探す](../autonomy/modes/lidar-reactive.md)** | Follow the Gap、Disparity Extender、Disparity Pursuit | LiDAR | 不要 |
+| **[カメラで道を見る](../autonomy/modes/camera.md)** | 走行可能な領域の中心線を追う、白線のライントレース、カメラ版の Follow the Gap | カメラ | 不要 |
+| **学習した方策で走る**（[模倣学習](../autonomy/modes/imitation.md)・[強化学習](../autonomy/modes/reinforcement.md)） | カメラ画像から操舵を学ぶ模倣学習（カメラ E2E）、シミュレータで強化学習した方策（LiDAR E2E） | カメラ／LiDAR | 不要 |
+| **[地図を作って周回する](../autonomy/modes/map-driving.md)** | 地図を作り、道路のつながりから経路を選んで周回する。分岐のあるコースにも対応 | LiDAR ＋ IMU ＋ 車速 | **作る** |
+| **人や目的地に合わせる**（[対象を追う](../autonomy/modes/follow.md)・[駐車する](../autonomy/modes/park.md)） | 映像上で選んだ対象との距離を保って追う、指定した位置と向きに駐車する | カメラ ＋ LiDAR／LiDAR | 不要／局所のみ |
 
-一覧の id・入力・パラメータは [走行モード](../autonomy/modes.md#一覧) にあります。
+一覧の id・入力・パラメータは [走行モード](../autonomy/modes/index.md#一覧) にあります。
 
 ## 「地図なし」と「地図あり」の違い
 
@@ -28,7 +28,7 @@
 ## 方式を足すのは簡単
 
 新しい方式は、決まった形（`Planner`）に沿ったファイルを 1 つ書き、一覧に 1 行足すだけで加えられます。
-パラメータを宣言すれば、GUI のスライダは自動で作られます（[走行モード](../autonomy/modes.md#planner-の約束)）。
+パラメータを宣言すれば、GUI のスライダは自動で作られます（[走行モード](../autonomy/modes/index.md#planner-の約束)）。
 
 ## どこまで確かめたか
 
@@ -36,4 +36,4 @@
 
 ---
 
-**出典**: `raspi/auto/registry.py` の `PLANNERS`（[走行モード](../autonomy/modes.md) の一覧）、`PROTOPEDIA.md`。
+**出典**: `raspi/auto/registry.py` の `PLANNERS`（[走行モード](../autonomy/modes/index.md) の一覧）、`PROTOPEDIA.md`。
