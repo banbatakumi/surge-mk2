@@ -17,7 +17,7 @@
 <div class="sg-stat"><div class="sg-stat__v">2.0<small>kg</small></div><div class="sg-stat__k">質量</div></div>
 <div class="sg-stat"><div class="sg-stat__v">0.37 × 0.18<small>m</small></div><div class="sg-stat__k">長さ × 幅</div></div>
 <div class="sg-stat"><div class="sg-stat__v">0.23<small>m</small></div><div class="sg-stat__k">ホイールベース</div></div>
-<div class="sg-stat"><div class="sg-stat__v">15<small>km/h</small></div><div class="sg-stat__k">最高速度</div></div>
+<div class="sg-stat"><div class="sg-stat__v">18<small>km/h</small></div><div class="sg-stat__k">最高速度（5.0 m/s）</div></div>
 <div class="sg-stat"><div class="sg-stat__v">3<small>個</small></div><div class="sg-stat__k">BLDC モータ（後輪 2・操舵 1）</div></div>
 <div class="sg-stat"><div class="sg-stat__v">2<small>系統</small></div><div class="sg-stat__k">電源（駆動用・信号用）</div></div>
 </div>
@@ -61,6 +61,6 @@ flowchart LR
 
 ---
 
-**出典**: 寸法・質量は [`vehicle.toml`][vehicle-toml]、最高速度と方式の数は `PROTOPEDIA.md`、周期は STM32 ファームと MD ファーム。
+**出典**: 寸法・質量は [`vehicle.toml`][vehicle-toml]、最高速度は STM32 ファームの `DRIVE_MAX_SPEED_M_S`、方式の数は `PROTOPEDIA.md`、周期は STM32 ファームと MD ファーム。
 
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
