@@ -132,4 +132,5 @@ nav:
       - 主要諸元: reference/specs.md
       - 用語集: reference/glossary.md
       - リポジトリの案内: reference/repositories.md
+      - 開発に使ったツール: reference/dev-tools.md
       - このサイトについて: reference/about.md
