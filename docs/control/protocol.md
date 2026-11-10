@@ -8,7 +8,7 @@
 
 !!! note "【設計の説明】"
     定義: Pi 側 [`raspi/proto/protocol.toml`][protocol-toml]（**唯一の正**）。STM32 側は [`ras_link.h`][ras-link-h] / [`ras_link.c`][ras-link-c]。
-    確認した版: プロトコル v0.23（`protocol_version = 0x0017`）。ファーム `2a2e9a8`、上位 `19291eb`。
+    確認した版: プロトコル v0.29（`protocol_version = 0x001D`）。ファーム `6b5bdb3`、上位 `2d0a44e`。
 
 ## 物理層とフレーム
 
@@ -33,11 +33,11 @@
 | TYPE | 名前 | 方向 | 周期 | 長さ | 内容 |
 |---|---|---|---|---|---|
 | 0x10 | `COMMAND` | Pi → STM32 | **100 Hz** | 15 | モード、フラグ（ARM・ブレーキ・自動停止…）、目標車速、目標舵角、加速度上限、舵角速度上限、制動トルク |
-| 0x02 | `TELEMETRY` | STM32 → Pi | **100 Hz** | 84 | 車速、ヨーレート、舵角、各輪速度、IMU、電流、スリップ率、TC 上限、TV 比率、電圧、温度、超音波… |
+| 0x02 | `TELEMETRY` | STM32 → Pi | **100 Hz** | 102 | 車速、ヨーレート、舵角、各輪速度、IMU、電流、スリップ率、TC 上限、TV 比率、電圧、温度、超音波、車速 KF の加速度・バイアス・一貫性の診断、前輪の生の角度… |
 | 0x01 | `LIDAR_SECTOR` | STM32 → Pi | 120 Hz | 69 | LiDAR 1 周（360 点）を 12 セクタ × 30 点に分けた 1 セクタ。角度は `sector_idx*30 + i` [deg] |
 | 0x11 / 0x03 / 0x13 | `CONFIG_SET` / `CONFIG_ACK` / `CONFIG_GET` | 双方向 | 随時 | 6 / 7 / 2 | 調整パラメータの書き込み・確認応答（実際に適用された値を返す）・読み出し |
 | 0x12 / 0x06 | `PING` / `PONG` | 双方向 | 5 Hz | 4 / 12 | 時刻同期 |
-| 0x14 / 0x07 | `VERSION_REQ` / `VERSION` | 双方向 | 起動時 | 0 / 10 | プロトコル版数とファーム ID |
+| 0x14 / 0x07 | `VERSION_REQ` / `VERSION` | 双方向 | 起動時 | 0 / 10 | プロトコル版数、ファーム ID、ビルド時刻（`build_epoch`） |
 | 0x15 / 0x0A | `LIMITS_REQ` / `LIMITS` | 双方向 | 起動時 | 0 / 16 | 車両の物理上限（最高速、最大トルク、最大舵角…） |
 | 0x08 | `STATS` | STM32 → Pi | 1 Hz | 48 | 受信フレーム数、CRC エラー数、MD ごとの受信数・エラー数 |
 | 0x04 | `LOG` | STM32 → Pi | 随時 | 可変 | 重要度つきの文字列。優先度は最低 |
@@ -45,6 +45,8 @@
 LiDAR にはほかに、強度付き（`LIDAR_SECTOR_I`）と距離 1 バイト圧縮（`LIDAR_SECTOR_C`）の変種があり、パラメータ `0x0040` で切り替わります。
 
 STM32 は送信を優先度つきキューで並べます: **PONG > TELEMETRY > LIDAR > CONFIG_ACK 等 > LOG**（`CLAUDE.md`）。
+SEQ と CRC はキューに積むときではなく **DMA を起動する直前**に振るので、送出順に SEQ が単調に増え、
+正常なら Pi 側の `reordered`（SEQ の逆行）は 0 のままです（上位 `docs/uart_protocol.md`）。
 PONG は最優先です（応答を送り始める時刻 T3 が遅れると時刻同期の誤差になるため、と思われます）。
 
 ### 回線の使用率（計算）
@@ -53,10 +55,10 @@ PONG は最優先です（応答を送り始める時刻 T3 が遅れると時�
 
 | 流れ | 計算 | 使用率 |
 |---|---|---|
-| STM32 → Pi | LiDAR 76 B × 120 Hz ＋ TELEMETRY 91 B × 100 Hz ＋ STATS ≒ 18.3 kB/s | 約 18 % |
+| STM32 → Pi | LiDAR 76 B × 120 Hz ＋ TELEMETRY 109 B × 100 Hz ＋ PONG・STATS ほか ≒ 20.4 kB/s | 約 20 % |
 | Pi → STM32 | COMMAND 22 B × 100 Hz ＋ PING ≒ 2.3 kB/s | 約 2 % |
 
-TELEMETRY 1 フレームの線上時間は 0.91 ms、COMMAND は 0.22 ms です。
+TELEMETRY 1 フレームの線上時間は 1.09 ms、COMMAND は 0.22 ms です。
 
 ## 起動時のやりとり（ARM の前提）
 
@@ -66,6 +68,8 @@ Pi の `io_node` は、次の条件を**独立に**確かめるまで ARM を通
    **Pi と STM32 はセットで入れ替える**前提です（片方だけ新しいと、フィールドの位置がずれて「なぜか値が化ける」ことになる）。
 2. **`LIMITS` を受け取る。** 速度・舵角のクランプに使う。
 3. **調整パラメータの同期**（下記）。
+4. **ハートビートを検出していること**（TELEMETRY の `NO_HEARTBEAT` が立っていない）。
+5. **E-Stop・駆動電源ラッチ・STM32 の再起動のあとは、操縦側の ARM が一度外れていること**（[再 ARM の扱い](safety.md#再-arm-の扱い)）。
 
 ### 調整パラメータの同期
 
@@ -102,7 +106,7 @@ $$
   **線形回帰で切片（オフセット）と傾き（ドリフト）を同時に**推定します。
 - 回帰は PONG が来たときにだけ計算して持ち、点が一時的に足りなくなっても最後に成立した回帰で外挿します（**傾きを捨てない**）。
 - 開発記録によれば、過去に「条件しだいで最大 178 ms 未来側へずれる」不具合があり、回帰を保持する形に直しました
-  （修正後 0.36 ms 以下。`PROGRESS.md` 2026-10-14）。
+  （修正後 0.36 ms 以下。上位のコミット `05f8b3e` と当時の `PROGRESS.md`、2026-10-14）。
 - シミュレータの仮想 STM32 は、**Pi と独立の時計に、実機で実測したドリフト（+3378 ppm）を持たせています。**
   Pi の時計をそのまま返すと、時刻同期のコードが仕事をしているか確認できないためです。
 
@@ -119,7 +123,7 @@ UART の COMMAND 途絶（100 ms）とは別に、Pi の **GPIO6 が 100 Hz の�
 ## パケット定義を 1 か所に閉じる
 
 パケット定義を Pi 側と STM32 側で別々に手書きすると**必ずズレます。** 実際、v0.4 の策定中に `TELEMETRY` のフィールド順
-（`odom_dist` と `accel` のどちらが先か）が食い違ったまま 2 往復した、と記録にあります（`raspi/proto/README.md`）。
+（`odom_dist` と `accel` のどちらが先か）が食い違ったまま 2 往復した、と記録にありました（`raspi/proto/README.md`。2026-11-01 の文書整理で削除）。
 
 そこで `protocol.toml` を唯一の正にして、`generate.py` が Python のパーサ（`packets.py`）と C ヘッダ（`surge_proto.h`）を生成します。
 生成時に、フィールドの合計バイト数が `len` と一致するかなどを検証し、CI（`generate.py --check`）が再生成し忘れを検出します。
@@ -131,8 +135,8 @@ UART の COMMAND 途絶（100 ms）とは別に、Pi の **GPIO6 が 100 Hz の�
     防いでいるのは実行時の `protocol_version` の照合（不一致なら ARM を拒否）です。
     ファーム側にも同じ生成物を取り込む、または版数と定数の一致を検査する、というのが次の一手になります。
 
-    また、同じ仕様が Pi 側の `docs/uart_protocol.md` と STM32 側の `docs/pi_uart_protocol_v0.XX_delta.md` の二箇所に書かれており、
-    **ファーム側の `docs/README.md` は v0.22 までしか触れていません**（コードは v0.23）。仕様の正はコードです。
+    文書は整理され、ファーム側の版ごとの差分文書（`pi_uart_protocol_v0.XX_delta.md`）は `docs/archive/` へ移されました。
+    ファーム側の `docs/README.md` は、数値・バイト配置の唯一の定義を Pi 側の `protocol.toml`、説明を Pi 側の `docs/uart_protocol.md` としています。
 
 [protocol-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/raspi/proto/protocol.toml
 [ras-link-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/comm/ras_link.h

@@ -7,7 +7,7 @@
 
 
 !!! note "【設計の説明】"
-    対象: [`src/control/drive.c`][drive-c] / [`drive.h`][drive-h]。確認した版: ファーム `2a2e9a8`。
+    対象: [`src/control/drive.c`][drive-c] / [`drive.h`][drive-h]。確認した版: ファーム `6b5bdb3`、上位 `2d0a44e`。
     加速度フィードフォワードとローンチコントロールは **【未検証】**（[検証状況](../development/status.md)）。
 
 後輪 2 輪をトルク指令で動かし、**車速の閉ループを STM32 の中で完結**させています。
@@ -21,7 +21,7 @@ flowchart LR
     B --> C["車速 PI<br/>+ 加速度 FF"]
     V["車速 KF<br/>(前輪の走行距離＋加速度計)"] --> C
     C -- "総駆動トルク" --> D["左右配分<br/>等配分 + TV の差"]
-    D --> E["TC リミッタ<br/>(各輪)"]
+    D --> E["TC リミッタ（各輪）<br/>前進中の減速は ABS"]
     E --> F["最高速ガード"]
     F -- "UART 2 kHz" --> G["MD 電流ループ"]
     E -. "削った分を積分に戻す<br/>(back-calculation)" .-> C
@@ -135,8 +135,8 @@ PI だけだと、加速度 \(a\) を出すトルクは「偏差が \(a/(\text{�
 
 | パラメータ | 意味 | 現在の値 |
 |---|---|---|
-| `speed_ff_nm_per_m_s2` | \(k_a\)。車体の利得の逆数 | 0.046 N·m/(m/s²) |
-| `speed_ff_rr_nm` | \(k_{rr}\)。転がり抵抗ぶん（進む向きへ） | 0.013 N·m |
+| `speed_ff_nm_per_m_s2` | \(k_a\)。車体の利得の逆数 | 0.0795 N·m/(m/s²) |
+| `speed_ff_rr_nm` | \(k_{rr}\)。転がり抵抗ぶん（進む向きへ） | 0.0233 N·m |
 
 - 傾きは上位が 50 Hz で目標を刻むため周期ごとに跳ぶので、その刻みの周期 \(\tau = 20\,\mathrm{ms}\) を時定数にした
   1 次ローパスでならします（`DRIVE_SPEED_FF_TAU_S` = `DRIVE_HOST_COMMAND_PERIOD_S`）。Pi 側は `vehicle.toml` の
@@ -146,7 +146,7 @@ PI だけだと、加速度 \(a\) を出すトルクは「偏差が \(a/(\text{�
 
 ## アンチウィンドアップ
 
-TC や左右の上限で削られたトルクのぶんだけ、積分を巻き戻します（back-calculation）。
+TC・ABS や左右の上限で削られたトルクのぶんだけ、積分を巻き戻します（back-calculation）。
 
 $$
 I \mathrel{+}= \frac{T_{\mathrm{applied}} - T_{\mathrm{requested}}}{K_i}\cdot\frac{\Delta t}{T_t},\qquad T_t = 0.1\,\mathrm{s}
@@ -172,6 +172,9 @@ PI に目標 0 を与えるだけでは、制動力がゲイン任せになり�
 
 - 制動モードでは MD は左右に同じトルクしか出せないので、**TV はこの間、左右差を付けられません**。
 - ABS はこの制動トルクに掛かります（[スリップ制御](traction.md#5-abs)）。
+- 制動・torque_mode の間は、目標車速（ランプの起点）を**実車速に合わせ続けます**（`TrackVehicleSpeed`）。
+  0 に固定すると、走っているうちに離したとき（短い制動・自動停止の解除・torque_mode からの復帰）に目標が 0 から数え直しになり、
+  ランプが実車速へ追いつくまで PI が減速させ続けるためです。
 - **MD の制動は低速で抜けます。** 20 rad/s（0.6 m/s）以下で弱まり、2 rad/s 未満で 0 になります。
   このため、制動トルクだけでは坂で保持できません。止まったら**後輪を位置制御に切り替える**のがブレーキホールド／サイドブレーキです
   （[安全層](safety.md#ブレーキホールド)）。位置制御は、切り替えの瞬間の機械角度を左右独立にラッチして固定するだけです。
@@ -197,9 +200,10 @@ TC にグリップの限界まで絞らせます。
 マイコンのバグや通信異常で過大な指令が出ても、最終段で頭打ちになります。
 
 !!! warning "上限は MD の絶対上限を超えてはいけない"
-    後輪 MD の絶対上限（Kt × 最大電流 10 A）は約 0.148・0.144 N·m です。**0.15 を設定すると MD が上限を受け入れず**、
-    こちらは「指令と完全に一致するまで MD を使えるとみなさない」ので、ARM の 5 秒後に `md_fault` でラッチして走れなくなります。
-    MD の絶対上限（Kt×10A）を超えると、ファームは MD を使えないと判断して走らせません。2026-10-18 の MD の自動校正し直しで絶対上限が約 0.2 N·m になり、0.13 から 0.15 に上げました。
+    MD は受け取った上限を自分の絶対上限（Kt × 最大電流 10 A）で頭打ちにして返し、こちらは「指令と完全に一致するまで MD を使えるとみなさない」ので、
+    絶対上限を超える値を設定すると ARM の 5 秒後に `md_fault` でラッチして走れなくなります（LOG に `torque limit not applied`）。
+    2026-10-18 に MD を自動校正し直す前の後輪 MD の絶対上限は約 0.148・0.144 N·m で、そのころは 0.13 にしていました。
+    校正し直した後は約 0.2 N·m になったので 0.15 にしています。MD を校正し直して Kt が 0.015 N·m/A を下回ると、同じ症状になります（`drive.h` のコメント）。
 
 ## 実装上の注意
 
@@ -208,9 +212,17 @@ TC にグリップの限界まで絞らせます。
   とヘッダにあります（コメント上は「実機で 1 輪ずつ回して確認すること」）。
 - 車輪半径は幾何寸法（直径 60 mm）から入れてあり、ゴムタイヤが荷重で潰れるぶん実際の転がり半径は数 % 小さい。
   この誤差はそのまま車速とオドメトリの倍率誤差になります。精度が要るなら、距離を転がして累積角から逆算します。
+- **最高速ガード**（`DRIVE_OVERSPEED_GUARD_M_S`）は、実車速が指令の上限 5.0 m/s の 1.1 倍（5.5 m/s）を超えたら正トルクを出さない最終防壁です。
+  指令の上限と同じ値にすると、上限ちょうどを指令したときに車速の揺れで正トルクが入り切りを繰り返して上限を保てないので、1 割上に置いています
+  （後輪 MD のトルクモードの過速度保護 8.1 m/s より下）。
+- **前輪エンコーダの読みの鏡像**: 会場の試走で、前輪の角度の読みが毎周同じ場所で「2π − 本来の角度」に入れ替わり、約 1 秒後に戻りました
+  （回転量はそのまま、向きだけが逆）。車速が負に化け、TC がトルクを切るなどしてコースから外れていました。そこで後輪の速度と車速の推定が
+  同じ向きのときにそれを基準にして、前輪の増分の向きだけを直します（[`encoder_direction.h`][encdir-h]）。直したら `LOG` で上位へ知らせ、
+  TELEMETRY の前輪の走行距離（`odom_dist`）もこの直した増分から積みます。
 
 [drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.c
 [drive-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.h
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
 [kf-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/speed_kf.h
 [kf-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/speed_kf.c
+[encdir-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/encoder_direction.h

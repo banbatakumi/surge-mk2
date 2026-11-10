@@ -7,7 +7,8 @@
 
 
 !!! note "【設計の説明】"
-    確認した版: ファーム `2a2e9a8`（2026-10-13、ブランチ `FW/MainBoard_V3`）。
+    確認した版: ファーム `6b5bdb3`（2026-11-09、ブランチ `FW/MainBoard_V3`）、上位 `2d0a44e`。
+    書き込みの記録があるのは `fb65b6f`（2026-11-01）までで、それより後の変更（自動停止の予想進路、TC の作り直しなど）は実機に入っていません（上位の `PROGRESS.md`「現在の状態」）。
     リポジトリの既定ブランチ `main` は基板の履歴で、ファームの最新ではありません。
 
 STM32F446RE（Cortex-M4F、180 MHz）の上で、**500 µs 周期（2 kHz）のメインループ**が全部を回します。
@@ -35,12 +36,16 @@ flowchart LR
 
 - 周期は `CONTROL_INTERVAL_US 500` で固定。`Drive` のローパスは時定数（`DRIVE_LPF_TAU_*`）で持ち、係数を
   実際の経過時間から毎周期求めるので、周期を変えても時定数は変わりません（`app.c` のコメント）。
-- 独立ウォッチドッグ（IWDG）は `WATCHDOG_TIMEOUT_MS 500`。**一度起動すると止められない**ので、
+- 独立ウォッチドッグ（IWDG）は `WATCHDOG_TIMEOUT_MS 500`（内部発振器 LSI のばらつきで、実際は 340〜940 ms に振れる）。**一度起動すると止められない**ので、
   ブロッキングする初期化（IMU の静止較正、起動時のハザード点滅、ステアの中心点記録）が
   すべて終わってから最後に起動します。裏を返すと **`Setup()` 中のハングは検出できません**。
 - ループの先頭で無条件に `Watchdog_Refresh()` を叩きます。「ループが回っていること自体が生存の証拠」で、
   個々のモジュールの異常は別のフォールトとして扱います（IWDG を異常時の停止手段に流用すると、
   リセットで状態が消えて原因が追えなくなる、とコードのコメントにあります）。
+- ウォッチドッグのリセットで起動し直したときは、起動の演出（ブザーとハザード、合計約 2.5 秒）を飛ばしてメインループへ早く入り、
+  `LOG` で上位へ知らせます。走行中のハングから戻ったのかもしれないためです。
+- 起動時には、ビルドした git のコミットとビルド時刻を `LOG` に出します（`build_info.c`）。`VERSION` パケットの `build_epoch` もビルド時刻で、
+  どのファームが書き込まれているかを上位の記録から確かめられます。
 
 ## モジュールの層
 
@@ -50,10 +55,10 @@ flowchart TB
     subgraph L2["上位層"]
         vehicle["vehicle/<br/>指令・緊急停止・フェイルセーフの調停、自動停止"]
         hmi["hmi/<br/>状態表示"]
-        comm["comm/<br/>RasLink・Heartbeat・Telemetry"]
+        comm["comm/<br/>RasLink・Heartbeat・Telemetry・BuildInfo"]
     end
     subgraph L3["機能層"]
-        control["control/<br/>Motors・Steering・Drive・TorqueVectoring・ControlParams"]
+        control["control/<br/>Motors・Steering・Drive・SpeedKf・EncoderDirection<br/>TorqueVectoring・AutoStopPath・ControlParams"]
         sensing["sensing/<br/>Encoder・Imu・Lidar・RangeSensor"]
         power["power/<br/>電圧・電流・DRIVE_POWER/LIDAR_POWER"]
         lighting["lighting/"]
@@ -68,7 +73,7 @@ flowchart TB
 - 各モジュールは「struct ＋ `Module_Init()` で依存を渡す ＋ `Module_Update()`」の形で、グローバル変数を参照しない。
 - `lib/` は特定の車両を知らない。
 
-この分け方のおかげで、`src/control`（Drive・TorqueVectoring・ControlParams）は **ホスト（Mac/Linux）でそのままコンパイルして
+この分け方のおかげで、`src/control`（Drive・SpeedKf・TorqueVectoring・自動停止の予想進路など）は **ホスト（Mac/Linux）でそのままコンパイルして
 閉ループ試験に使えます**（[検証の仕組み](../development/workflow.md#ファームの制御コードをそのままホストで回す)）。
 
 ## 調整パラメータの扱い
@@ -78,6 +83,8 @@ TC・ABS・TV・車速 PI のゲインなどは、ファームに**値を持た�
 - `control_params.h` の `CONTROL_PARAM_TABLE` が名前・`param_id`・仮置き値・範囲の**唯一の定義**です。
 - 上位（Pi）が接続のたびに全項目を `CONFIG_SET` で送り、`CONFIG_ACK` が返す「実際に適用された値」と突き合わせます。
 - Flash には保存しないので、電源を入れ直すと仮置き値（各範囲の下限＝「何もしない値」）に戻ります。
+  例外は前輪エンコーダの校正と車速のカルマンフィルタの調整値で、上位が送る前でも車速と走行距離が出るよう、
+  「校正なし」と `speed_kf.h` の既定と同じ値を仮置きにしています（ステアのリンクの換算は恒等の 1 と 0）。
 - 値の正は Pi 側の [`vehicle.toml`][vehicle-toml] の `[control]` で、Pi は全項目が揃って確認できるまで ARM（走行許可）を通しません。
 
 「調整値をファームに焼き込むと、書き換えと再書き込みが面倒で、車ごとの違いも持てない」ことへの対策です。
@@ -91,7 +98,7 @@ TC・ABS・TV・車速 PI のゲインなどは、ファームに**値を持た�
 | 通常起動 | 駆動電源・LiDAR 電源とも **OFF**。Pi が ARM するまで入れない |
 | ボタン 1 を押しながら起動 | 現在のステア角を「直進の中心」として記録し Flash に保存。このときだけ駆動電源を一時的に入れる |
 | ボタン 2 を押しながら起動 | IMU の静止較正をやり直して Flash に保存（数秒） |
-| 緊急停止の解除 | 緊急停止がラッチされている間にボタン 2 を押す（ハートビートが戻っていること） |
+| 緊急停止の解除 | 緊急停止がラッチされている間にボタン 2 を押す（ハートビートが戻っていること）。解除しても、上位が ARM を一度下ろして入れ直すまで走らない |
 
 ステアの中心が未較正の間は、駆動電源を入れず、舵角指令も送りません（絶対角が信用できないため）。
 
