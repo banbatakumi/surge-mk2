@@ -42,6 +42,11 @@ stateDiagram-v2
 <figcaption>地図パネル。作った地図の上に、速度で色分けした走行ラインと自分の位置が重なる（シミュレータで撮影）。</figcaption>
 </figure>
 
+<figure markdown>
+![前方映像に重ねた走行の計画](../../assets/img/gui/S-04.jpg){ loading=lazy }
+<figcaption>前方映像に重ねた計画（実機）。紫が今走っている経路、青の破線が指令の舵角のまま進んだときの進路、黄が実際の舵角での進路。指令と実際のずれを映像の上で読める。</figcaption>
+</figure>
+
 ## 設計の詳細
 
 ### 経路を選ぶ — 道路グラフと経由点
