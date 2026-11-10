@@ -73,6 +73,19 @@ markdown_extensions:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
+extra:
+  # フッターの右側に出るリンク（全ページ共通）
+  social:
+    - icon: fontawesome/solid/user
+      link: https://banbatakumi.github.io/
+      name: 開発者のポートフォリオ
+    - icon: fontawesome/brands/github
+      link: https://github.com/banbatakumi/surge-mk2
+      name: このサイトのリポジトリ
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/@bambi_rcj
+      name: 走行動画（YouTube）
+
 extra_css:
   - assets/css/extra.css
 
