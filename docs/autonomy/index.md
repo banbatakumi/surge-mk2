@@ -7,7 +7,7 @@
 
 
 !!! note "【設計の説明】"
-    確認した版: 上位 `19291eb`（2026-10-14）。コードは [`surge_mk2/raspi/`][raspi-dir]。
+    確認した版: 上位 `2d0a44e`（2026-11-09）。コードは [`surge_mk2/raspi/`][raspi-dir]。
 
 Pi 側は**ノードごとに別プロセス**で、ZeroMQ の PUB/SUB と共有メモリでつないでいます。
 1 つのプロセスが落ちても、ほかが巻き込まれないようにするためです。
@@ -26,6 +26,7 @@ Pi 側は**ノードごとに別プロセス**で、ZeroMQ の PUB/SUB と共有
 | `cam_track_node` | 画像 + `scan` | `track/target` | 対象追従用のトラッキング |
 | `arrow_signal_node` | 画像 | `route/select` | 矢印信号の認識（HSV しきい値） |
 | `logger_node` | バス全体 | mcap ファイル | 記録 |
+| `video_node` | 画像（共有メモリ） | mp4 ファイル（Pi の `logs/`） | GUI の録画ボタンで `telemetry_node` が起動する。前後カメラの映像を 30 fps の mp4 に録る |
 | `replay_node` | `.sfl` 記録 | `io_node` と同じバスの出力 | 記録の再生（実機なしの開発用） |
 
 `planning_node` の**アルゴリズム自体は `raspi/auto/` にあり**、ノードは配線だけを持ちます（[走行モード](modes/index.md)）。
@@ -93,7 +94,7 @@ perception_node → その参照から numpy の view を作る（コピーゼ�
 ## 依存と配備
 
 - 依存は Python 3.12/3.13 の `pyserial`、`pyzmq`、`msgspec`、`websockets`、numpy など。バージョンは範囲で留め、
-  実機・大会当日は `requirements.lock.txt`（`pip freeze` の結果）を使う方針です。
+  実機に入れるときは `requirements.lock.txt`（`pip freeze` の結果）を使う方針です。
 - 画像の前処理は OpenCV や Pillow に依存せず numpy だけで書かれ、**学習側（Mac）と推論側（Pi）が同じ関数を import**します
   （`raspi/core/cam_e2e_preproc.py`）。前処理を変えたら `PREPROC_VERSION` を上げ、古い前処理で学習したモデルは読み込みを拒否します。
 - systemd の `RemoveIPC=yes`（既定）は、そのユーザーの最後のセッションが終わると共有メモリを全消しします。
