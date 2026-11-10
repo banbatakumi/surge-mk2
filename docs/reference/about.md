@@ -46,8 +46,8 @@ SURGE Mark.2 のハードウェア・制御・システム設計・自動運転�
 
 | リポジトリ | 内容 | 確認したコミット |
 |---|---|---|
-| [`AutonomousCar_RasPi`][raspi-repo] | Raspberry Pi 側（`surge_mk2/`） | `19291eb`（2026-10-14） |
-| [`AutonomousCar`][fw-repo] | STM32 ファーム（`Program/MainF446RE_V3`、ブランチ `FW/MainBoard_V3`）と基板（`Circuit/`） | ファーム `2a2e9a8`（2026-10-13）。基板は `213c0cc`（2026-11-02） |
+| [`AutonomousCar_RasPi`][raspi-repo] | Raspberry Pi 側（`surge_mk2/`） | `2d0a44e`（2026-11-09） |
+| [`AutonomousCar`][fw-repo] | STM32 ファーム（`Program/MainF446RE_V3`、ブランチ `FW/MainBoard_V3`）と基板（`Circuit/`） | ファーム `6b5bdb3`（2026-11-09）。基板は `213c0cc`（2026-11-02） |
 | [`BLDC`][bldc-repo] | モータドライバのファーム（`ProgramV4`）と基板（`CurcuitV1`〜`V4`）。ブランチ `FW/Program_V4` | `1668666`（2026-11-09） |
 
 開発は続いているため、リンク先のコードはこのサイトより新しくなっていることがあります。
@@ -76,27 +76,31 @@ python3 tools/check_links.py    # ページ内リンク・アンカーの切れ�
 | `Circuit/MainBoard_*` | [電装と電源](../hardware/electronics.md) |
 | `vehicle.toml` の寸法・`steer_link_*`・`[sensors.*]` | [シャシー](../hardware/chassis.md)、[ステアリング](../hardware/steering.md)、[センサ](../hardware/sensors.md)、[主要諸元](specs.md) |
 | 3D モデル（Fusion） | [3D データ](../hardware/3d-model.md)（`tools/cad/` の手順で GLB を作り直す） |
-| `drive.c` / `drive.h` / `control_params.h` | [駆動制御](../control/drive.md)、[スリップ制御](../control/traction.md) |
+| `drive.c` / `drive.h` / `control_params.h` / `speed_kf.c` / `encoder_direction.c` | [駆動制御](../control/drive.md)、[スリップ制御](../control/traction.md) |
 | `torque_vectoring.c` | [トルクベクタリング](../control/torque-vectoring.md) |
-| `vehicle.c` / `heartbeat.c` / `power.h` | [安全層](../control/safety.md) |
+| `vehicle.c` / `heartbeat.c` / `power.h` / `auto_stop_path.c` | [安全層](../control/safety.md) |
 | `protocol.toml` / `ras_link.h` | [UART プロトコル](../control/protocol.md) |
 | `io_node.py` / `telemetry_node.py` | [上位の安全設計](../autonomy/safety.md)、[ノード構成](../autonomy/index.md) |
+| `raspi/setup/install_services.sh` | [システム構成](../about-car/system.md) |
 | `ml_cam_e2e/` / `ml_lidar/` / `ml_cam/` | [模倣学習](../autonomy/modes/imitation.md)、[強化学習](../autonomy/modes/reinforcement.md)、[カメラ](../autonomy/modes/camera.md)。拡張の図は `tools/fig_yaw_aug.py` で作り直す |
 | `gui/` / `tools/launcher.py` | [操作画面](../development/gui.md)、[補助ツール](../development/tools.md) |
 | `raspi/auto/` / `raspi/nav/` / `slam2d/` | [走行モード](../autonomy/modes/index.md)、[地図](../autonomy/mapping.md)、[レーシングライン](../autonomy/raceline.md)、[追従](../autonomy/tracking.md) |
-| 実機で何かを確かめた | [検証状況](../development/status.md) |
+| `raspi/nav/_native.c` / `slam2d/core/_native.c` | [C による高速化](../development/performance.md) |
+| `sim/` / `tools/fwsim` / `tools/calib` / `.github/workflows/ci.yml` | [検証の仕組み](../development/workflow.md) |
+| 実機で何かを確かめた・`vehicle.toml` の校正値を書き換えた | [検証状況](../development/status.md) |
 
 ## この作成中に見つけた食い違い
 
-既存の文書やコードのコメントと、実際のコードが合っていなかった箇所です（確認した版 `19291eb` / `2a2e9a8` の時点）。サイトは**コードの側**に合わせて書いています。
+既存の文書やコードのコメントと、実際のコードが合っていなかった箇所です（`19291eb` / `2a2e9a8` の時点で見つけ、`2d0a44e` / `6b5bdb3` で確かめ直した）。サイトは**コードの側**に合わせて書いています。
 
 | 箇所 | 内容 |
 |---|---|
-| ファーム `drive.h` の API コメント | `Drive_SetTractionControlEnabled` に「既定は有効」、`TorqueVectoring_Init` に「初期状態は有効」とあるが、実装は**どちらも無効で初期化**し、上位が毎周期送る値で上書きする（同じヘッダの構造体のコメントは「既定は無効（上位が送る）」） |
-| ファーム `docs/README.md` と `CLAUDE.md` | `v0.22` までの差分しか触れておらず、現行版を `0x0016` としている。コードは `0x0017`（v0.23）で、`pi_uart_protocol_v0.23_delta.md` もある |
-| 開発記録とファームのソース | `PROGRESS.md`（2026-10-14）は、ファーム側にも「再 ARM の規則（`rearm_required`）」を入れたと読める記述があるが、**確認したファームのコミットには見当たらない**（[安全層](../control/safety.md#再-arm-の扱い)） |
-| ファームのリポジトリの既定ブランチ | `main` は基板の履歴で、ファームの最新ではない（最新は `FW/MainBoard_V3`） |
-| `vehicle.toml` の `mu` | `[dynamics]` は 0.42（旋回試験の限界から）、`[control.plant]` は 0.51（タイヤモデルのフィット）。用途が違う値だが、同じ名前で食い違っている |
+| ファーム `drive.h` の API コメント | **解消済み。** 以前は `Drive_SetTractionControlEnabled` に「既定は有効」、`TorqueVectoring_Init` に「初期状態は有効」とあったが、実装はどちらも無効で初期化する。今のコメントはどちらも「既定は無効」 |
+| ファーム `docs/README.md` と `CLAUDE.md` | **解消済み。** 以前は現行版を古い版番号としていた。今の `CLAUDE.md` は `0x001D`（v0.29）でコードと一致し、版ごとの差分の文書は `docs/archive/` へ移された |
+| 開発記録とファームのソース | **解消済み。** 以前は `PROGRESS.md`（2026-10-14）の「再 ARM の規則（`rearm_required`）」が、確認したファームのコミットに見当たらなかった。今のファームには `vehicle.c` に実装がある（[安全層](../control/safety.md#再-arm-の扱い)） |
+| 開発記録とファームのリポジトリ | `PROGRESS.md`「現在の状態」はファームの HEAD を `99f7c94`（未 push）としているが、確認した時点の HEAD は `6b5bdb3` で、`origin` と一致していた（その後の 2 コミットは文書・コメントの整理） |
+| ファームのリポジトリの既定ブランチ | `main` にもファームはあるが最新ではない（最新は `FW/MainBoard_V3`） |
+| `vehicle.toml` の `mu` | `[sim]` は 0.42（シムの横グリップ。`[limits]` が無いときの予備）、`[control.plant]` は 1.32（校正 7 のタイヤモデル）。用途が違う値だが、同じ名前で食い違っている |
 | Pi への OpenCV の導入 | `slam2d/README.md` は Pi 5 に `opencv-contrib-python-headless` が入っていると書き、`cam_e2e_preproc.py` は「Pi には OpenCV も Pillow も入れていない」と書く。`requirements.txt`（開発）には OpenCV があり、`requirements.lock.txt`（実機）には見当たらない。どちらが正しいかは確定できなかった |
 
 ## セキュリティについて

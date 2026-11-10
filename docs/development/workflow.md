@@ -7,7 +7,7 @@
 
 
 !!! note "【設計の説明】"
-    確認した版: 上位 `19291eb`、ファーム `2a2e9a8`。ここで述べるツールの出力は、ほとんどが**シム／ホスト検証**です。
+    確認した版: 上位 `2d0a44e`、ファーム `6b5bdb3`。ここで述べるツールの出力は、ほとんどが**シム／ホスト検証**です。
 
 実車を走らせられる時間は限られます。このプロジェクトは、**実車の前に確かめられることを、できるだけ実機と同じコードで確かめる**ための道具を揃えています。
 
@@ -28,7 +28,7 @@ flowchart LR
 `io_node` より上流は**1 行も変えずに動きます。**
 
 実機と同一のコードが走る部分: `protocol.toml` のパケット定義 / CRC-16 とフレーミング / SI ⇄ 整数の換算とクランプ / LiDAR の鏡像戻し（`ScanAssembler`）/
-リンク状態と PING-PONG 時刻同期 / `--allow-arm` ゲート / `cmd` 150 ms タイムアウト → DISARM / `telemetry_node` / GUI。
+リンク状態と PING-PONG 時刻同期 / `--allow-arm` ゲート / `cmd` 150 ms 途絶 → 最大制動 → 止まってから DISARM / `telemetry_node` / GUI。
 
 - **シミュレーションの操作は実機 GUI に入れない。** コース切替・ノイズ量などは実機に対応物が無く、実機 GUI に UI を持たせると、
   表示判定を 1 つ間違えた瞬間に実車の画面にシム用コントロールが出ます。
@@ -48,9 +48,12 @@ flowchart LR
 センサの不完全さ（ジャイロバイアス、車速の倍率誤差、LiDAR の欠損・ノイズ・遅延）は、車両モデル本体ではなく**センサ誤差の注入層**で入れます。
 物理モデルは「真値」を持つ役で、ここに不完全さを混ぜると他のベンチの意味が変わってしまうためです。
 
+シムの車が実機に近いかは `sim.log_check` で見ます。実機の記録の指令をシムの車へ開ループで入れ、舵角・車速・ヨー・前後加速度の差を並べます。
+値は求めず、モデルを直したときに「実機に近づいたか」を判定する物差しです（[`sim/README.md`][sim-readme]）。
+
 ## ファームの制御コードをそのままホストで回す
 
-[`tools/fwsim`][fwsim] は、STM32 ファームの `src/control`（Drive・TorqueVectoring・ControlParams・車速のカルマンフィルタ）を
+[`tools/fwsim`][fwsim] は、STM32 ファームの `src/control`（Drive・TorqueVectoring・ControlParams・車速のカルマンフィルタ・前輪エンコーダの鏡像補正）を
 **ホスト（Mac/Linux）でそのままコンパイル**し、後輪＋タイヤ＋車体のモデルと閉ループにします。動かすのは実物のコードなので、
 **Python に写した制御とのずれが起きません。**
 
@@ -74,6 +77,8 @@ flowchart LR
 - 浮いた輪が吹け上がらない（`test_lifted_wheel_does_not_run_away`）
 - 片輪を絞ったトルクを反対輪に移さない（`test_cut_wheel_torque_is_not_moved_to_the_other_wheel`）
 - 前輪エンコーダが死んでも暴走しない（`test_dead_front_encoder_does_not_runaway`）
+- 前輪エンコーダの読みの鏡像を直す（`test_front_encoder_direction.py`）
+- 自動停止の予想進路が、車体の掃く範囲を見落とさない（総当たりと比べる。`test_auto_stop_path.py`）
 - 制動中は加速度 FF を足さない、ローンチの開始・終了条件、TV の配分
 - ファームの定数の写しが `vehicle.toml` と一致する（`test_fw_constants.py`）
 
@@ -118,7 +123,10 @@ CI（[`.github/workflows/ci.yml`][ci-yml]）の本体は、**生成物が正と�
 最後のものは、`docs/README.md` が 2 版遅れたまま誰も気づかなかった、という過去の事故が理由です。
 **版番号だけ**を見ます（本文が仕様と合っているかは機械には判定できない。「表紙の数字が古い」という、読む人ほど間違える形の腐り方を潰す）。
 
-加えて ruff（未使用 import・未定義名）、`raspi/tests` の pytest（Python 3.12 と 3.13 の両方。実機は 3.13、開発機は 3.12）、GUI の `tsc`（`strict` ＋ `noUncheckedIndexedAccess`）とビルドを回します。
+加えて ruff（未使用 import・未定義名）、pytest（Python 3.12 と 3.13 の両方。実機は 3.13、開発機は 3.12）、GUI の `tsc`（`strict` ＋ `noUncheckedIndexedAccess`）とビルドを回します。
+pytest の対象は `raspi/tests`・`sim/tests`・`slam2d/tests`、`tools` のテスト（校正の解析 `tools/calib/tests` を含む）と、別の job で学習（`ml_*`）のテスト（3.12 と CPU 版の torch）です。
+`tools/fwsim` のテストも 2 本（ファームの定数の写しの突き合わせ・制御のロジック）を対象に入れていますが、CI にはファームのリポジトリが無いので飛ばされます。
+ファームの制御を変えたときは、手元で上の手順のとおり回します。
 `tools/check.sh` が同じ検査をローカルで 1 コマンドで走らせます。
 
 ## 配備
@@ -131,3 +139,4 @@ CI（[`.github/workflows/ci.yml`][ci-yml]）の本体は、**生成物が正と�
 [calib]: https://github.com/banbatakumi/AutonomousCar_RasPi/tree/master/surge_mk2/tools/calib
 [calib-md]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/docs/calibration.md
 [ci-yml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/.github/workflows/ci.yml
+[sim-readme]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/sim/README.md

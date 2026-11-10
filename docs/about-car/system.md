@@ -6,7 +6,7 @@
     - Pi の中は役割ごとに別プロセスに分かれ、内部のバスでつながっています。
 
 !!! note "【設計の説明】"
-    確認した版: ファーム `2a2e9a8`、上位 `19291eb`。
+    確認した版: ファーム `6b5bdb3`、上位 `2d0a44e`。
 
 ## 役割分担
 
@@ -79,7 +79,9 @@ flowchart TB
 | `surge-planning` | 点群から走行指令を作る（自動運転モードを持つ） |
 | `surge-cam-perception` / `surge-cam-e2e` / `surge-line-perception` / `surge-cam-track` | カメラ系の認識（走行可能領域、模倣学習、白線、対象追従） |
 | `surge-mdns` | `<ホスト名>.local` の問い合わせに、Wi-Fi 端末向けにユニキャストで答える補助（アクセスポイントがマルチキャストを中継しない環境の対策） |
+| `surge-arrow-signal`（任意） | 前方カメラで矢印信号を認識して経路を選ぶ。unit だけ置き、既定では無効 |
 | `surge-logger`（任意） | mcap 形式の記録。SD への書き込みを避けるため既定では入れない |
+| `surge-logclean.timer` | 古い記録を毎時消す（7 日より古いものと、合計 8 GB を超えたぶん） |
 
 `surge-io` が止まる、または Pi が落ちると、STM32 側のハートビート監視が **緊急停止をラッチ** します
 （[安全層](../control/safety.md)）。
@@ -89,13 +91,13 @@ flowchart TB
 - STM32 の時刻は `micros` のカウンタ（32 bit、約 71.6 分でラップ）で、Pi の `CLOCK_MONOTONIC` とは別物です。
   PING／PONG の 4 つのタイムスタンプからクロックオフセットとドリフトを推定して換算します
   （[プロトコル](../control/protocol.md#時刻同期)）。SLAM と遅延測定がこれに依存します。
-- 実測値（[`vehicle.toml`][vehicle-toml] の `[dynamics]`。舵は 2026-09-28 の旧同定、遅延は 2026-10-18 の記録）:
+- 実測値（[`vehicle.toml`][vehicle-toml] の `[dynamics]`。舵は 2026-10-20 に反映した車両の校正 3、遅延は 2026-11-06 の校正 4）:
 
     | 量 | 値 |
     |---|---|
-    | 操舵のむだ時間（`dead_time_s`） | 約 8 ms |
-    | 操舵の 1 次遅れ時定数（`tau_steer_s`） | 約 0.8 ms |
-    | LiDAR スキャン完了 → 反応した指令を STM32 が受理（`control_latency_s`） | 約 12 ms |
+    | 操舵のむだ時間（`dead_time_s`） | 約 10 ms |
+    | 操舵の 1 次遅れ時定数（`tau_steer_s`） | 0（曲率の 2 次遅れで表す: 固有角振動数 約 69 rad/s、減衰比 0.9） |
+    | LiDAR スキャン完了 → 反応した指令を STM32 が受理（`control_latency_s`） | 約 3.9 ms |
 
     舵そのものはほとんど遅れません。経路追従はこれらを [遅延補償](../autonomy/tracking.md#遅延補償) で見込んでいます。
 
