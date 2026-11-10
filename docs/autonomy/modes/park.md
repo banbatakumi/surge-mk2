@@ -7,7 +7,7 @@
 
 !!! info "【シム／ホスト検証】"
     対象: [`park_to_point.py`][planner-py]、[`raspi/nav/`][nav-dir] の `scan_anchor.py`・`local_map.py`・`hybrid_astar.py`・`reeds_shepp.py`。確認した版: 上位 `2d0a44e`。
-    数値はシミュレータ（`sim.park_bench`）の値です。Hybrid A* と局所地図を C で書き直してからは、実機ではまだ走らせていません（開発記録）。
+    数値はシミュレータ（`sim.park_bench`）の値です。Hybrid A* と局所地図を [C で書き直して](../../development/performance.md)からは、実機ではまだ走らせていません（開発記録）。
 
 ## しくみ
 

@@ -125,6 +125,7 @@ nav:
       - 操作画面（Web GUI）: development/gui.md
       - 補助ツール: development/tools.md
       - 検証の仕組み: development/workflow.md
+      - C による高速化: development/performance.md
       - 検証状況: development/status.md
       - 設計上の教訓: development/lessons.md
   - 資料:
