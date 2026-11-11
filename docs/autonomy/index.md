@@ -22,6 +22,7 @@ Pi 側は**ノードごとに別プロセス**で、ZeroMQ の PUB/SUB と共有
 | `camera_node` | CSI カメラ 2 台 | `image/front`・`image/rear`（共有メモリへの参照） | 画像取り込み |
 | `cam_perception_node` | 画像 | `scan/cam`、`path/cam`、`cam/mask` | 走行可能領域のセグメンテーション（ONNX）→ 擬似 LiDAR |
 | `cam_e2e_node` | 画像 | `cam_e2e/cmd` | 画像から操舵を直接回帰（模倣学習） |
+| `e2e_fusion_node` | `scan`・画像・`vehicle_state` | `e2e_fusion/plan` | 点群・画像・車両状態から舵・速度・経路点を推論（[E2E 融合](modes/e2e-fusion.md)） |
 | `line_perception_node` | 画像 | `line/cam` | 白線検出（古典的な色しきい値） |
 | `cam_track_node` | 画像 + `scan` | `track/target` | 対象追従用のトラッキング |
 | `arrow_signal_node` | 画像 | `route/select` | 矢印信号の認識（HSV しきい値） |

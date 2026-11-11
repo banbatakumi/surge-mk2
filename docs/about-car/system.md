@@ -77,7 +77,7 @@ flowchart TB
 | `surge-camera` | CSI カメラ 2 台の取り込み。画像を共有メモリへ書く |
 | `surge-telemetry` | ブラウザ GUI との WebSocket サーバ。操縦権・デッドマン・自律走行の中継 |
 | `surge-planning` | 点群から走行指令を作る（自動運転モードを持つ） |
-| `surge-cam-perception` / `surge-cam-e2e` / `surge-line-perception` / `surge-cam-track` | カメラ系の認識（走行可能領域、模倣学習、白線、対象追従） |
+| `surge-cam-perception` / `surge-cam-e2e` / `surge-e2e-fusion`（点群＋画像の融合モデル）/ `surge-line-perception` / `surge-cam-track` | カメラ系の認識（走行可能領域、模倣学習、白線、対象追従） |
 | `surge-mdns` | `<ホスト名>.local` の問い合わせに、Wi-Fi 端末向けにユニキャストで答える補助（アクセスポイントがマルチキャストを中継しない環境の対策） |
 | `surge-arrow-signal`（任意） | 前方カメラで矢印信号を認識して経路を選ぶ。unit だけ置き、既定では無効 |
 | `surge-logger`（任意） | mcap 形式の記録。SD への書き込みを避けるため既定では入れない |

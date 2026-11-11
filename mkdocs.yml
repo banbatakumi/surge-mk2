@@ -127,6 +127,7 @@ nav:
           - カメラで道を見る: autonomy/modes/camera.md
           - 模倣学習（カメラ E2E）: autonomy/modes/imitation.md
           - 強化学習（LiDAR E2E）: autonomy/modes/reinforcement.md
+          - E2E 融合（LiDAR ＋ カメラ）: autonomy/modes/e2e-fusion.md
           - 地図を作って走る: autonomy/modes/map-driving.md
           - 対象を追う: autonomy/modes/follow.md
           - 駐車する: autonomy/modes/park.md

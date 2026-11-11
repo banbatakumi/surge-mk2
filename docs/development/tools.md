@@ -30,6 +30,7 @@
 | 学習 | ml_lidar | LiDAR の強化学習（[強化学習](../autonomy/modes/reinforcement.md)） |
 | | ml_cam | カメラのセグメンテーション（[カメラで道を見る](../autonomy/modes/camera.md)） |
 | | ml_cam_e2e | カメラの模倣学習（[模倣学習](../autonomy/modes/imitation.md)） |
+| | ml_e2e | LiDAR ＋ カメラ ＋ 車両状態の模倣学習（[E2E 融合](../autonomy/modes/e2e-fusion.md)） |
 
 **1 つの GUI にまとめず、別々のプロセスで起動しています。** シミュレータの描画（pygame）と Tkinter は 1 つのプロセスに同居できず、
 学習（PyTorch）と SLAM を同じプロセスに載せると、1 つが落ちたとき全部が落ちるからです。ランチャーを閉じると、起動中のツールも一緒に終わります。

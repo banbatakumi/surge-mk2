@@ -185,7 +185,7 @@ LiDAR を見ないので、前に物があってもモデルが「進め」と�
 
 ## これから
 
-LiDAR だけ、カメラだけの E2E から、**両方を組み合わせた E2E** へ進む予定です（[生まれた理由とこだわり](../../about-car/story.md#これから)）。
+LiDAR だけ、カメラだけの E2E から、**両方を組み合わせた E2E** へ進みました（[E2E 融合](e2e-fusion.md)。実走はこれから）。
 
 <div class="sg-next" markdown>
 <div markdown>
