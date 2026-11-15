@@ -152,11 +152,11 @@ MD はスイッチを押しながら起動すると、モータを付けたま�
 
 ---
 
-**出典**: [`BLDC`][bldc-repo]（ブランチ `FW/Program_V4`）の `ProgramV4/src/app/config.h`・`app.c`・`docs/FOC.md`・`docs/HARDWARE_MAP.md`・`docs/OPTIMIZATION.md`・`docs/SERIAL_PROTOCOL.md`、`CurcuitV4/production/bom.csv`。設計ツール・発注先は開発者への聞き取り（2026-11-09）。
+**出典**: [`BLDC`][bldc-repo]（ブランチ `main`）の `ProgramV4/src/app/config.h`・`app.c`・`docs/FOC.md`・`docs/HARDWARE_MAP.md`・`docs/OPTIMIZATION.md`・`docs/SERIAL_PROTOCOL.md`、`CurcuitV4/production/bom.csv`。設計ツール・発注先は開発者への聞き取り（2026-11-09）。
 
-[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/FW/Program_V4
-[curcuit-v4]: https://github.com/banbatakumi/BLDC/tree/FW/Program_V4/CurcuitV4
-[hw-map]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/HARDWARE_MAP.md
-[foc-md]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/FOC.md
-[opt-md]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/OPTIMIZATION.md
-[serial-md]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/SERIAL_PROTOCOL.md
+[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/main
+[curcuit-v4]: https://github.com/banbatakumi/BLDC/tree/main/CurcuitV4
+[hw-map]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/HARDWARE_MAP.md
+[foc-md]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/FOC.md
+[opt-md]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/OPTIMIZATION.md
+[serial-md]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/SERIAL_PROTOCOL.md

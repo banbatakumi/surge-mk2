@@ -35,7 +35,7 @@
 | 部品 | 型番 | 数量 | 用途 | 入手先 | 単価 | 小計 | 備考 |
 |---|---|---|---|---|---|---|---|
 | LiDAR | LD06 | 1 | 地図・自己位置・障害物 | AliExpress | 2,000 | 2,000 | |
-| カメラ | IMX219 | 2 | 前後の映像 | AliExpress | 600 | 1,200 | 160° の広角レンズ |
+| カメラ | IMX219 | 2 | 前方のステレオ（左右） | AliExpress | 600 | 1,200 | 160° の広角レンズ |
 | 超音波センサ | RCW-0001 | 2 | 前後の近距離の障害物 | AliExpress | 200 | 400 | |
 | 磁気式角度センサ | AS5600 | 2 | 前輪の車速 | AliExpress | 150 | 300 | 灯火・エンコーダ基板（OtherBoard_V1）で使用 |
 
@@ -86,5 +86,5 @@
 
 **出典**: 部品・価格・入手先は開発者の部品表（2026-11-09）。基板の版は各基板の回路図。
 
-[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/FW/Program_V4
-[fw-repo]: https://github.com/banbatakumi/AutonomousCar/tree/FW/MainBoard_V3/Circuit
+[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/main
+[fw-repo]: https://github.com/banbatakumi/AutonomousCar/tree/main/Circuit

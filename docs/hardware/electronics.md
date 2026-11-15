@@ -119,5 +119,5 @@ Raspberry Pi は GPIO6 から 100 Hz の矩形波を出し続けます。STM32 �
 
 **出典**: 電源の構成（DC-DC・電圧と電流の測定・ヒューズ）は開発者への聞き取り（2026-11-09）。電池は `PROTOPEDIA.md` と [`docs/system_overview.md` §2][system-overview]。部品は `Circuit/MainBoard_V3_2` の回路図。ピンは `system_overview.md` §2。
 
-[fw-repo]: https://github.com/banbatakumi/AutonomousCar/tree/FW/MainBoard_V3/Circuit
+[fw-repo]: https://github.com/banbatakumi/AutonomousCar/tree/main/Circuit
 [system-overview]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/docs/system_overview.md#2-ハードウェア

@@ -187,10 +187,10 @@ SURGE Mark.2 では、モータ軸に磁石を接着し、モータの真裏に�
 
 ---
 
-**出典**: 構造・部品・設計の理由は開発者への聞き取り（2026-11-09）。MD の数値と校正は [`BLDC`][bldc-repo]（ブランチ `FW/Program_V4`）の `config.h`・`docs/`。MD 基板の各版の部品は `CurcuitV1`〜`V4` の回路図。
+**出典**: 構造・部品・設計の理由は開発者への聞き取り（2026-11-09）。MD の数値と校正は [`BLDC`][bldc-repo]（ブランチ `main`）の `config.h`・`docs/`。MD 基板の各版の部品は `CurcuitV1`〜`V4` の回路図。
 
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
-[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/FW/Program_V4
-[hw-map]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/HARDWARE_MAP.md
-[foc-md]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/FOC.md
-[opt-md]: https://github.com/banbatakumi/BLDC/blob/FW/Program_V4/ProgramV4/docs/OPTIMIZATION.md
+[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/main
+[hw-map]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/HARDWARE_MAP.md
+[foc-md]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/FOC.md
+[opt-md]: https://github.com/banbatakumi/BLDC/blob/main/ProgramV4/docs/OPTIMIZATION.md

@@ -8,7 +8,7 @@
 
 !!! note "【設計の説明】"
     定義: Pi 側 [`raspi/proto/protocol.toml`][protocol-toml]（**唯一の正**）。STM32 側は [`ras_link.h`][ras-link-h] / [`ras_link.c`][ras-link-c]。
-    確認した版: プロトコル v0.29（`protocol_version = 0x001D`）。ファーム `6b5bdb3`、上位 `2d0a44e`。
+    確認した版: プロトコル v0.31（`protocol_version = 0x001F`）。ファーム `fc6956c`、上位 `7c7054e`。
 
 ## 物理層とフレーム
 
@@ -32,7 +32,8 @@
 
 | TYPE | 名前 | 方向 | 周期 | 長さ | 内容 |
 |---|---|---|---|---|---|
-| 0x10 | `COMMAND` | Pi → STM32 | **100 Hz** | 15 | モード、フラグ（ARM・ブレーキ・自動停止…）、目標車速、目標舵角、加速度上限、舵角速度上限、制動トルク |
+| 0x10 | `COMMAND` | Pi → STM32 | **100 Hz** | 15 | モード、フラグ（ARM・ブレーキ・自動停止…）、目標車速、目標舵角、加速度上限、舵角速度上限、制動トルク、ウィンカーと点滅の仕方（`flags2`） |
+| 0x16 | `STEREO_OBS` | Pi → STM32 | 10 Hz | 162 | ステレオで見た障害物の点（最大 40 点、車体座標の mm）と、撮影からの経過時間。STM32 の自動停止の入力（[安全層](safety.md#stereo-auto-stop)） |
 | 0x02 | `TELEMETRY` | STM32 → Pi | **100 Hz** | 102 | 車速、ヨーレート、舵角、各輪速度、IMU、電流、スリップ率、TC 上限、TV 比率、電圧、温度、超音波、車速 KF の加速度・バイアス・一貫性の診断、前輪の生の角度… |
 | 0x01 | `LIDAR_SECTOR` | STM32 → Pi | 120 Hz | 69 | LiDAR 1 周（360 点）を 12 セクタ × 30 点に分けた 1 セクタ。角度は `sector_idx*30 + i` [deg] |
 | 0x11 / 0x03 / 0x13 | `CONFIG_SET` / `CONFIG_ACK` / `CONFIG_GET` | 双方向 | 随時 | 6 / 7 / 2 | 調整パラメータの書き込み・確認応答（実際に適用された値を返す）・読み出し |
@@ -49,6 +50,15 @@ SEQ と CRC はキューに積むときではなく **DMA を起動する直前*
 正常なら Pi 側の `reordered`（SEQ の逆行）は 0 のままです（上位 `docs/uart_protocol.md`）。
 PONG は最優先です（応答を送り始める時刻 T3 が遅れると時刻同期の誤差になるため、と思われます）。
 
+### v0.29 からの変更
+
+| 版 | 変更 |
+|---|---|
+| v0.30（`0x001E`） | `COMMAND.flags2` の bit4-5 にウィンカーの点滅の仕方（`winker_mode`）を足した。0 = 旧ファーム互換（滑らか）、1 = 普通（500 ms 点灯・500 ms 消灯）、2 = 滑らか、3 = 豆電球風。操作画面の設定で選ぶ |
+| v0.31（`0x001F`） | `STEREO_OBS`（0x16）を足した。`TELEMETRY.flags` に bit27 `STEREO_OK`（300 ms 以内に届いている）と bit28 `AUTO_STOP_STEREO`（自動停止のきっかけにステレオの点が含まれる）を足した |
+
+版が合わない STM32 は、Pi が ARM させません。プロトコルを変えたら、ファームと Pi を必ず一緒に入れ替えます。
+
 ### 回線の使用率（計算）
 
 フレーム全体の長さは「LEN + 7」バイトです。
@@ -56,7 +66,7 @@ PONG は最優先です（応答を送り始める時刻 T3 が遅れると時�
 | 流れ | 計算 | 使用率 |
 |---|---|---|
 | STM32 → Pi | LiDAR 76 B × 120 Hz ＋ TELEMETRY 109 B × 100 Hz ＋ PONG・STATS ほか ≒ 20.4 kB/s | 約 20 % |
-| Pi → STM32 | COMMAND 22 B × 100 Hz ＋ PING ≒ 2.3 kB/s | 約 2 % |
+| Pi → STM32 | COMMAND 22 B × 100 Hz ＋ STEREO_OBS 169 B × 10 Hz ＋ PING ≒ 4.0 kB/s | 約 4 % |
 
 TELEMETRY 1 フレームの線上時間は 1.09 ms、COMMAND は 0.22 ms です。
 
@@ -139,7 +149,7 @@ UART の COMMAND 途絶（100 ms）とは別に、Pi の **GPIO6 が 100 Hz の�
     ファーム側の `docs/README.md` は、数値・バイト配置の唯一の定義を Pi 側の `protocol.toml`、説明を Pi 側の `docs/uart_protocol.md` としています。
 
 [protocol-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/raspi/proto/protocol.toml
-[ras-link-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/comm/ras_link.h
-[ras-link-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/comm/ras_link.c
+[ras-link-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/comm/ras_link.h
+[ras-link-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/comm/ras_link.c
 [control-params-py]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/raspi/core/control_params.py
 [timesync-py]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/raspi/core/timesync.py

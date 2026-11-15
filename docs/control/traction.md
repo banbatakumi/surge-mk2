@@ -179,9 +179,9 @@ $$
 - **削ったトルクを反対輪に載せない。** 総和を保つ「親切」は、要求していないヨーモーメントを生む。
 - **ヨーレートは実測を使う。** 滑ったとき自転車モデルは当てにならない。
 
-[drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.c
-[drive-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.h
-[params-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/control_params.h
+[drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/drive.c
+[drive-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/drive.h
+[params-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/control_params.h
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
 [tyre-py]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/tools/calib/tyre.py
 [tc-gain-py]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/tools/calib/tc_gain.py

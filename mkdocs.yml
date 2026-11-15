@@ -136,6 +136,7 @@ nav:
       - 経路追従と速度指令: autonomy/tracking.md
       - 上位の安全設計: autonomy/safety.md
   - 開発の進め方:
+      - 開発の記録: development/history.md
       - 操作画面（Web GUI）: development/gui.md
       - 補助ツール: development/tools.md
       - 検証の仕組み: development/workflow.md

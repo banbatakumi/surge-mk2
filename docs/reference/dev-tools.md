@@ -7,7 +7,7 @@
 
 !!! note "【出典】"
     ソフトの道具は、各リポジトリの依存の定義（`requirements.txt`・`package.json`・`Makefile`・`.ioc`）と CI の設定から書き出しています。
-    設計・製作・書き込み器・エディタは、本人への聞き取り（2026-11-10）によるものです。確認した版: 上位 `2d0a44e`、ファーム `6b5bdb3`。
+    設計・製作・書き込み器・エディタは、本人への聞き取り（2026-11-10）によるものです。確認した版: 上位 `7c7054e`、ファーム `fc6956c`。
 
 ## 設計・製作
 
@@ -41,6 +41,7 @@
 | 操作画面との通信 | websockets |
 | 学習したモデルの推論 | ONNX Runtime |
 | カメラ・GPIO | picamera2、gpiozero（Raspberry Pi 5 のため `RPi.GPIO` は使わない） |
+| ステレオ | 左右の同期は libcamera のソフトウェア同期（picamera2 から使う）、距離の照合は OpenCV の StereoSGBM（[ステレオで低い障害物を見る](../autonomy/index.md#stereo)） |
 | SLAM のループ閉じの最適化 | g2o（`g2opy`） |
 | 走行の記録 | MCAP（Foxglove でも開ける形式） |
 
@@ -83,6 +84,7 @@
 
 - [リポジトリの案内](repositories.md)
 - [補助ツール](../development/tools.md)
+- [開発の記録](../development/history.md)
 </div>
 <div markdown>
 さらに深く

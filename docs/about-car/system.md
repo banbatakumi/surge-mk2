@@ -6,7 +6,7 @@
     - Pi の中は役割ごとに別プロセスに分かれ、内部のバスでつながっています。
 
 !!! note "【設計の説明】"
-    確認した版: ファーム `6b5bdb3`、上位 `2d0a44e`。
+    確認した版: ファーム `fc6956c`、上位 `7c7054e`（2026-11-15）。
 
 ## 役割分担
 
@@ -74,7 +74,8 @@ flowchart TB
 | サービス | 役割 |
 |---|---|
 | `surge-io` | STM32 との UART 送受信、GPIO のハートビート、時刻同期。`Nice=-10` で優先度を上げてある |
-| `surge-camera` | CSI カメラ 2 台の取り込み。画像を共有メモリへ書く |
+| `surge-camera` | CSI カメラ 2 台（前方のステレオの左右）の取り込み。画像を共有メモリへ書く。左右を同期させるのは、ステレオが要るときだけ |
+| `surge-stereo` | 左右の画像を照合して距離を出す（`stereo_node`）。低い障害物の点を自動停止に送る |
 | `surge-telemetry` | ブラウザ GUI との WebSocket サーバ。操縦権・デッドマン・自律走行の中継 |
 | `surge-planning` | 点群から走行指令を作る（自動運転モードを持つ） |
 | `surge-cam-perception` / `surge-cam-e2e` / `surge-e2e-fusion`（点群＋画像の融合モデル）/ `surge-line-perception` / `surge-cam-track` | カメラ系の認識（走行可能領域、模倣学習、白線、対象追従） |

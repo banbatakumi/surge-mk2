@@ -7,7 +7,7 @@
 
 
 !!! note "【設計の説明】"
-    確認した版: 上位 `2d0a44e`（2026-11-09）。コードは [`surge_mk2/raspi/`][raspi-dir]。
+    確認した版: 上位 `7c7054e`（2026-11-15）。コードは [`surge_mk2/raspi/`][raspi-dir]。
 
 Pi 側は**ノードごとに別プロセス**で、ZeroMQ の PUB/SUB と共有メモリでつないでいます。
 1 つのプロセスが落ちても、ほかが巻き込まれないようにするためです。
@@ -19,18 +19,42 @@ Pi 側は**ノードごとに別プロセス**で、ZeroMQ の PUB/SUB と共有
 | `io_node` | UART、バスの `cmd` | `vehicle_state`（100 Hz）、`scan`（10 Hz）、`diag/link` | STM32 との送受信、時刻同期、ARM の門番、ハートビート |
 | `telemetry_node` | バス、WebSocket | `cmd`、`auto/ctrl` ほか | ブラウザ GUI との橋渡し、操縦権、デッドマン、自律走行の中継 |
 | `planning_node` | `scan` ほか、`vehicle_state`、`auto/ctrl` | `auto/cmd`、`auto/state`、`auto/map` | 走行モード（planner）を動かして指令を作る |
-| `camera_node` | CSI カメラ 2 台 | `image/front`・`image/rear`（共有メモリへの参照） | 画像取り込み |
+| `camera_node` | CSI カメラ 2 台（前方のステレオ） | `image/front`（右＝主）・`image/left`（左）（共有メモリへの参照） | 画像の取り込み。ステレオが要る間だけ左カメラを回し、左右を同期させる |
+| `stereo_node` | `image/front`・`image/left` | `scan/stereo`、`stereo/depth`、`stereo/info` | 左右の画像を照合して、LiDAR より低い障害物の点を出す（[下](#stereo)） |
 | `cam_perception_node` | 画像 | `scan/cam`、`path/cam`、`cam/mask` | 走行可能領域のセグメンテーション（ONNX）→ 擬似 LiDAR |
 | `cam_e2e_node` | 画像 | `cam_e2e/cmd` | 画像から操舵を直接回帰（模倣学習） |
-| `e2e_fusion_node` | `scan`・画像・`vehicle_state` | `e2e_fusion/plan` | 点群・画像・車両状態から舵・速度・経路点を推論（[E2E 融合](modes/e2e-fusion.md)） |
+| `e2e_fusion_node` | `scan`・画像・`vehicle_state` | `e2e_fusion/plan` | 点群・画像・車両状態から前方の経路点を推論（[E2E 融合](modes/e2e-fusion.md)） |
 | `line_perception_node` | 画像 | `line/cam` | 白線検出（古典的な色しきい値） |
 | `cam_track_node` | 画像 + `scan` | `track/target` | 対象追従用のトラッキング |
 | `arrow_signal_node` | 画像 | `route/select` | 矢印信号の認識（HSV しきい値） |
 | `logger_node` | バス全体 | mcap ファイル | 記録 |
-| `video_node` | 画像（共有メモリ） | mp4 ファイル（Pi の `logs/`） | GUI の録画ボタンで `telemetry_node` が起動する。前後カメラの映像を 30 fps の mp4 に録る |
+| `video_node` | 画像（共有メモリ） | mp4 ファイル（Pi の `logs/`） | GUI の録画ボタンで `telemetry_node` が起動する。左右カメラの映像を 30 fps の mp4 に録る（`_front.mp4`・`_left.mp4`） |
 | `replay_node` | `.sfl` 記録 | `io_node` と同じバスの出力 | 記録の再生（実機なしの開発用） |
 
 `planning_node` の**アルゴリズム自体は `raspi/auto/` にあり**、ノードは配線だけを持ちます（[走行モード](modes/index.md)）。
+
+## ステレオで低い障害物を見る（`stereo_node`） {#stereo}
+
+LiDAR は路面から 0.095 m の高さの面しか測らないので、それより低い物は見えません。
+2026-11-13 に前方のカメラを左右 2 台のステレオにして（[センサ](../hardware/sensors.md#stereo)）、その照合で低い障害物を拾うノードを足しました。
+
+| 項目 | 内容 |
+|---|---|
+| 照合 | OpenCV の StereoSGBM（ブロック 5、視差 96）。640 幅のまま、平行化した画像の 150〜260 行の帯だけを 10 Hz で照合する |
+| 出力 `scan/stereo` | 床より上・高さ 20 cm 以下の点を、1° ごとの距離にしたもの（型は LiDAR と同じ `Scan`）。**0 は「見つからない」で、「空いている」ではない** |
+| 出力 `stereo/depth` | 視差を色にした JPEG。GUI の深度映像（`/ws/camera/depth`）に出す |
+| いつ照合するか | ARM 中（自動停止の入力にするため、モードに関わらず）か、深度映像を誰かが見ている間だけ。それ以外は左カメラも止める |
+| 遅れ | 撮影から `scan/stereo` まで中央値 47 ms（Pi 5、1.5 GHz） |
+
+設計の判断:
+
+- **StereoBM ではなく SGBM。** BM は模様の無い面で取り違え、偽の近い障害物を出しました。
+- **行の帯を 260 行で切る。** それより下には左右とも自分の車体が写り、0.3 m 先の偽の障害物になっていました。代わりに、床が見えるのは車の中央で約 1.1 m より先になります。
+- **左右がそろった組だけを使う。** 左右の撮影時刻の差が 0.5 ms 以内のとき（`synced`）だけ照合します。そろっていない間は「何も見ていない」空の `Scan` を出します。
+- **照合した距離は学習の入力に混ぜない。** 障害物の点として、古典的な処理で使います。原因を切り分けやすくするためです。模倣学習や E2E 融合には、左右の生の画像 2 枚をそのまま入れます。
+
+`io_node` は `scan/stereo` の点を STM32 へ 10 Hz で送り（`STEREO_OBS`）、STM32 が自動停止の判定に使います（[安全層](../control/safety.md#stereo-auto-stop)）。
+自動運転のモードの中でステレオを使う（段階 5）のは、方針を決めただけでまだ作っていません（[検証状況](../development/status.md)）。
 
 ## バスの設計
 

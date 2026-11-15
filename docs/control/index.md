@@ -7,7 +7,7 @@
 
 
 !!! note "【設計の説明】"
-    確認した版: ファーム `6b5bdb3`（2026-11-09、ブランチ `FW/MainBoard_V3`）、上位 `2d0a44e`。
+    確認した版: ファーム `fc6956c`（2026-11-15、ブランチ `main`）、上位 `7c7054e`。`6b5bdb3` からのファームの変更はウィンカーの点滅の仕方とステレオの自動停止だけで、このページの範囲は変わっていない。
     書き込みの記録があるのは `fb65b6f`（2026-11-01）までで、それより後の変更（自動停止の予想進路、TC の作り直しなど）は実機に入っていません（上位の `PROGRESS.md`「現在の状態」）。
     リポジトリの既定ブランチ `main` は基板の履歴で、ファームの最新ではありません。
 
@@ -123,6 +123,6 @@ TC・ABS・TV・車速 PI のゲインなどは、ファームに**値を持た�
 - [トルクベクタリング](torque-vectoring.md)
 - [安全層とフェイルセーフ](safety.md)
 
-[app-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/app/app.c
-[fw-claude]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/CLAUDE.md
+[app-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/app/app.c
+[fw-claude]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/CLAUDE.md
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml

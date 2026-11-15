@@ -220,9 +220,9 @@ TC にグリップの限界まで絞らせます。
   同じ向きのときにそれを基準にして、前輪の増分の向きだけを直します（[`encoder_direction.h`][encdir-h]）。直したら `LOG` で上位へ知らせ、
   TELEMETRY の前輪の走行距離（`odom_dist`）もこの直した増分から積みます。
 
-[drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.c
-[drive-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.h
+[drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/drive.c
+[drive-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/drive.h
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
-[kf-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/speed_kf.h
-[kf-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/speed_kf.c
-[encdir-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/encoder_direction.h
+[kf-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/speed_kf.h
+[kf-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/speed_kf.c
+[encdir-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/encoder_direction.h

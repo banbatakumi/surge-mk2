@@ -12,7 +12,7 @@
 !!! warning "この表の出どころ"
     根拠は、上位側の [`PROGRESS.md`][progress]（「現在の状態」と「実機で確かめること」）、2026-11-09 までの作業記録
     （`git show 4921671:surge_mk2/PROGRESS.md`）、ファーム側の [`CLAUDE.md`][fw-claude]（「現在の状態」。書き込みと実機確認の状況は上位の `PROGRESS.md` を正としている）、
-    ソースコード中のコメントです。確認した版: 上位 `2d0a44e`、ファーム `6b5bdb3`。
+    ソースコード中のコメントです。確認した版: 上位 `7c7054e`（2026-11-15）、ファーム `fc6956c`（2026-11-15）。
     **これらは開発者本人の記録であり、第三者による再現確認ではありません。**
     記録が無いものは「確認できず」と書き、「未検証」とは区別しています。
 
@@ -42,6 +42,8 @@
 | ハートビート断による緊急停止ラッチ | 【実機確認】（運用上） | `surge-io` を再起動すると E-Stop がラッチし、ボタン 2 を押すまで戻らない、という運用の注意が `tools/deploy.sh` と `docs/development.md` にある。計画的な試験の記録は確認できず |
 | ブレーキ灯のしきい値 | 【実機確認】 | 実機の周回記録（最高 2.8 m/s・262 秒）に当てて決めた（`vehicle.h` のコメント） |
 | 緊急制動表示（ESS）のしきい値 | 【未検証】 | 縮小した値で、未実測プレースホルダー |
+| ステレオの点による自動停止（`STEREO_OBS`、v0.31） | 【シム／ホスト検証】 | 2026-11-15 にコミット（`fc6956c`）。しきい値は実走行の記録 2 本をファームの判定に通して決めた（`tools/fwsim/stereo_replay`）。書き込みの記録は無く、実機で止めたときの停止距離と誤検知は未確認（[安全層](../control/safety.md#stereo-auto-stop)） |
+| ウィンカーの点滅の仕方（`winker_mode`、v0.30） | 【確認できず】 | 2026-11-13 に追加。実機で確かめた記録は見当たらない |
 
 ## 上位（Raspberry Pi）
 
@@ -59,8 +61,12 @@ Pi 側は、2026-11-06 までの変更を Pi で走らせています（記録 `
 | 駐車（`park_to_point`） | 【シム／ホスト検証】 | シムで 42/48 成功・衝突 0/48（センサ誤差あり）。Hybrid A* と毎周期の局所地図を C に書き直してからは、実機ではまだ走らせていない（`PROGRESS.md`） |
 | 反射型（FTG・Disparity Extender） | 【シム／ホスト検証】＋【実機確認】（動作） | 周回時間の比較はシムの値（[LiDAR で空いている方向へ](../autonomy/modes/lidar-reactive.md)） |
 | LiDAR の強化学習モデル（`e2e_lidar`） | 【シム／ホスト検証】＋【実機確認】（動作） | シムで学習。シムでの新しい学習は止めている（`PROGRESS.md`、[強化学習](../autonomy/modes/reinforcement.md)） |
-| カメラ模倣学習（`cam_e2e`） | 【実機確認】（周回） | 2026-10-30 の記録で、v7 は約 1 m/s で約 2 周を接触なし、v9 は平均 2.25 m/s で約 7 周走った後、コース上の人に衝突した（このモードは障害物では止まらない）。現在のモデルは v9（[模倣学習](../autonomy/modes/imitation.md)） |
-| E2E 融合（`e2e_fusion`） | 【シム／ホスト検証】 | 2026-11-11 に追加。学習に使っていない記録 3 本での開ループ評価のみ（経路誤差は最初の 2 m で 0.07〜0.17 m）。Pi へ未反映で、実走していない。入力を伏せた評価では、画像を伏せると経路誤差が約 3 倍になり、点群を伏せてもほぼ変わらない（[E2E 融合](../autonomy/modes/e2e-fusion.md)） |
+| カメラ模倣学習（`cam_e2e`） | 【実機確認】（周回、カメラ 1 台の頃） | 2026-10-30 の記録で、v7 は約 1 m/s で約 2 周を接触なし、v9 は平均 2.25 m/s で約 7 周走った後、コース上の人に衝突した（このモードは障害物では止まらない）。2026-11-13 に入力を左右 2 台に変え、旧いモデルは消した。左右 2 台の版は Mac のテストまでで、記録・学習・Pi への反映はまだ（[模倣学習](../autonomy/modes/imitation.md#stereo-input)） |
+| E2E 融合（`e2e_fusion`） | 【シム／ホスト検証】 | 2026-11-11 に追加。2026-11-13 に画像の入力を左右 2 台に変え、旧いモデル（v1・v2）は消した。以下の数値はカメラ 1 台の頃のモデルのもの。学習に使っていない記録 3 本での開ループ評価のみ（経路誤差は最初の 2 m で 0.07〜0.17 m）。Pi へ未反映で、実走していない。入力を伏せた評価では、画像を伏せると経路誤差が約 3 倍になり、点群を伏せてもほぼ変わらない（[E2E 融合](../autonomy/modes/e2e-fusion.md)） |
+| 前方ステレオ: 取付・同期・校正（段階 0〜2） | 【実機確認】 | 2026-11-12。左右の時刻差は最大 67 µs（同期した組）、校正は基線 76.2 mm・平行化後の縦ずれ中央値 0.29 px で合格。既知の距離の壁（0.5/1.0/1.5 m）で距離は ±1〜3 %（`PROGRESS.md`、[`stereo_plan.md`][stereo-plan]） |
+| 前方ステレオ: 照合（`stereo_node`、段階 4） | 【実機確認】（静止） | Pi に反映。撮影から `scan/stereo` まで中央値 47 ms、電流 +156 mA で合格。11-13 に ARM して組が途切れないことを確かめたが、駆動用バッテリーの電圧不足でモータは起動しておらず、走行中は未確認 |
+| 前方ステレオ: 自動運転のモードで使う（段階 5） | 【未検証】 | 方針を決めただけで、作っていない |
+| カメラの前後配置の削除（後方カメラ・バックミラーなど） | 【確認できず】 | 2026-11-13 にコードから消した。`PROGRESS.md` は「Pi 未反映」 |
 | カメラ系（セグメンテーション、白線） | 【実機確認】（動作） | 動作の記録はあるが、周回性能の記録は確認できなかった（[カメラで道を見る](../autonomy/modes/camera.md)） |
 | 再 ARM のルール（E-Stop・通信途絶の後は ARM を入れ直すまで走らない） | 【未検証】 | Pi 側（`io_node` の `_update_rearm_latch`）とファーム側（`rearm_required`）の両方に実装がある。実機で確かめた記録は確認できず（[安全層](../control/safety.md#再-arm-の扱い)） |
 
@@ -77,6 +83,7 @@ Pi 側は、2026-11-06 までの変更を Pi で走らせています（記録 `
 | 転がり抵抗の減速度（`rolling_resistance`） | 約 0.29 m/s² | 校正 5 |
 | スキャン完了 → STM32 が指令を受理（`control_latency_s`） | 約 3.9 ms | 校正 4（2026-11-06）。通信の待ちを減らした後に測り直し、12.1 ms から下がった |
 
-[fw-claude]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/CLAUDE.md
+[fw-claude]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/CLAUDE.md
 [progress]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/PROGRESS.md
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
+[stereo-plan]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/docs/stereo_plan.md

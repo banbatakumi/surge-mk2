@@ -5,6 +5,9 @@
 画素と座標の対応: px = (X1 - X) * PXM、py = (Z1 - Z) * PXM（モデル座標 X=左, Z=前、単位 m）。
 センサの位置は 3D モデルの部品の中心。vehicle.toml の取付位置（後車軸の中心が原点）とも一致を確認済み。
 画角はカメラが vehicle.toml の undistort_hfov（補正後 1.92 rad ≈ 110°）。超音波は指向角の資料が無いので向きだけ描く。
+カメラは 2026-11-13 から前方の左右 2 台のステレオ（vehicle.toml の cam_front＝右・cam_left＝左。x=0.09, y=±0.0375）。
+背景の 3D モデルはそれより前（前後に 1 台ずつ）のままなので、カメラの位置は vehicle.toml から置く
+（モデル座標 Z = x - 0.1148、X = y）。背景の PNG は既存の SVG に埋め込まれたものを取り出して使ってよい。
 
     python3 tools/fig_sensor_layout.py top.png > docs/assets/fig/sensor_layout.svg
 """
@@ -55,7 +58,7 @@ def label(x, z, side, y_px, title, sub, color):
 def main():
     png = base64.b64encode(open(sys.argv[1], "rb").read()).decode()
     lidar = (0.0, -0.0475)
-    cam_f, cam_r = (0.0, -0.0148), (0.0, -0.0802)
+    cam_r, cam_l = (-0.0375, -0.0248), (0.0375, -0.0248)  # 右（主）・左
     us_f, us_r = (0.0, 0.1372), (0.0, -0.1472)
     enc_l, enc_r = (0.0536, 0.1150), (-0.0536, 0.1150)
     board = (0.010, 0.0205)
@@ -63,8 +66,8 @@ def main():
            f'<rect width="{W}" height="{H}" fill="#fff" rx="16"/>',
            f'<image x="{MARGIN}" y="20" width="{IMG_W}" height="{IMG_H}" href="data:image/png;base64,{png}"/>']
     # 視野
-    out.append(fan(*cam_f, 0, 110, 0.085, BLUE))
-    out.append(fan(*cam_r, 180, 110, 0.085, BLUE))
+    out.append(fan(*cam_r, 0, 110, 0.085, BLUE))
+    out.append(fan(*cam_l, 0, 110, 0.085, BLUE))
     cx, cy = px(*lidar)
     out.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{0.105 * PXM:.1f}" fill="{ORANGE}" fill-opacity="0.08" '
                f'stroke="{ORANGE}" stroke-width="2.5" stroke-dasharray="10 8"/>')
@@ -75,16 +78,16 @@ def main():
     out.insert(1, f'<defs><marker id="arr" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="4" markerHeight="4" orient="auto-start-reverse">'
                   f'<path d="M0,0 L10,5 L0,10 z" fill="{GREEN}"/></marker></defs>')
     # 点
-    for p, c in ((lidar, ORANGE), (cam_f, BLUE), (cam_r, BLUE), (us_f, GREEN), (us_r, GREEN), (enc_l, PURPLE), (enc_r, PURPLE), (board, INK)):
+    for p, c in ((lidar, ORANGE), (cam_r, BLUE), (cam_l, BLUE), (us_f, GREEN), (us_r, GREEN), (enc_l, PURPLE), (enc_r, PURPLE), (board, INK)):
         out.append(dot(*p, c))
     # ラベル（左右の余白）
     out.append(label(*us_f, "right", 120, "超音波（前）", "RCW-0001", GREEN))
     out.append(label(*enc_l, "left", 340, "前輪の角度センサ", "AS5600（左右）", PURPLE))
     out.append(label(*enc_r, "right", 340, "前輪の角度センサ", "AS5600（左右）", PURPLE))
-    out.append(label(*cam_f, "right", 620, "前方カメラ", "IMX219・補正後 約110°", BLUE))
+    out.append(label(*cam_r, "right", 620, "ステレオカメラ（右・主）", "IMX219・基線 約76 mm", BLUE))
     out.append(label(*board, "left", 640, "メイン基板", "IMU（MPU6050）を搭載", INK))
     out.append(label(*lidar, "left", 900, "LiDAR", "LD06・360°・10 Hz", ORANGE))
-    out.append(label(*cam_r, "right", 900, "後方カメラ", "IMX219・補正後 約110°", BLUE))
+    out.append(label(*cam_l, "left", 470, "ステレオカメラ（左）", "IMX219・補正後 約110°", BLUE))
     out.append(label(*us_r, "right", 1240, "超音波（後）", "RCW-0001", GREEN))
     # 方位
     ax, ay = MARGIN + IMG_W / 2, 6

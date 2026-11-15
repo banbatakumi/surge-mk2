@@ -98,6 +98,6 @@ TV はフィードフォワードの配分で、滑ってヨーレートが増�
 TV が左右差を付けたあと、TC（前進中の車速 PI の減速では ABS）が各輪を絞ります。**TV の左右差を載せた後のトルクが「絞る前に掛けたかったトルク」**として
 `torque_req`（TELEMETRY のフィールド）に記録されるので、上位で TC の介入量を `torque_req − torque_cmd` として見られます。
 
-[tv-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/torque_vectoring.c
-[tv-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/torque_vectoring.h
-[drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/control/drive.c
+[tv-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/torque_vectoring.c
+[tv-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/torque_vectoring.h
+[drive-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/control/drive.c

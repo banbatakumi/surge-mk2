@@ -44,7 +44,7 @@
 | 項目 | 値 |
 |---|---|
 | LiDAR | LD06（10 Hz 回転） |
-| カメラ | IMX219（160° 広角）×2、前後 |
+| カメラ | IMX219（160° 広角）×2、前方のステレオ（左右、基線 約 76 mm） |
 | 超音波 | RCW-0001 ×2、前後 |
 | IMU | MPU-6050（6 軸、地磁気なし） |
 | 車速 | 前輪左右の磁気式角度センサ AS5600（灯火・エンコーダ基板 OtherBoard_V1） |
@@ -61,5 +61,5 @@
 「聞き取り」は開発者への聞き取り（2026-11-09）です。
 
 [vehicle-toml]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/config/vehicle.toml
-[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/FW/Program_V4
+[bldc-repo]: https://github.com/banbatakumi/BLDC/tree/main
 [system-overview]: https://github.com/banbatakumi/AutonomousCar_RasPi/blob/master/surge_mk2/docs/system_overview.md#2-ハードウェア

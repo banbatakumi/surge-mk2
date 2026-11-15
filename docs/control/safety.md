@@ -8,7 +8,7 @@
 
 !!! note "【設計の説明】"
     対象: [`vehicle.c`][vehicle-c] / [`vehicle.h`][vehicle-h]、[`heartbeat.c`][heartbeat-c]、[`power.h`][power-h]、[`app.c`][app-c]。
-    確認した版: ファーム `6b5bdb3`、上位 `2d0a44e`。自動停止・ブレーキホールド・再 ARM の規則（`rearm_required`）・MD 異常のデバウンスは **【未検証】**
+    確認した版: ファーム `fc6956c`、上位 `7c7054e`。自動停止・ブレーキホールド・再 ARM の規則（`rearm_required`）・MD 異常のデバウンスは **【未検証】**
     （ファーム `CLAUDE.md`、[検証状況](../development/status.md)）。自動停止の予想進路（2026-11-02）は書き込みの記録もありません（上位 `PROGRESS.md`）。
 
 **上位（Pi）が落ちても、STM32 単独で車を止められる**のが設計の前提です。ここでは「止め方」を中心に説明します。
@@ -144,6 +144,7 @@ $$
   （または上位が逆方向を指令すれば）動けます。
 - ARM 中に LiDAR も前後の超音波も使えない状態が 3 秒続いたら、TELEMETRY の `flags` に `AUTO_STOP_BLIND`（bit26）を立てて上位へ知らせます
   （ARM 直後の LiDAR の起動待ちでは立たないよう 3 秒待つ）。
+- **ステレオ**: 前進のときだけ、Pi が送るステレオの障害物の点も見ます（[下](#stereo-auto-stop)）。
 
 ### 予想進路
 
@@ -177,6 +178,28 @@ $$
 
 緊急停止（ハートビート断）のフェイルセーフは**LiDAR を使いません**。
 
+### ステレオの点で止める {#stereo-auto-stop}
+
+【未検証】2026-11-15 のファーム（`fc6956c`、プロトコル v0.31）から、LiDAR・超音波に加えて、**Pi が前方のステレオで見た障害物の点**も自動停止の判定に入れます。
+LiDAR は路面から 0.095 m の高さの面しか測らないので、それより低い物を拾うためです（[ステレオで低い障害物を見る](../autonomy/index.md#stereo)）。
+
+- **判断は STM32 がする。** Pi は車体座標の点（最大 40 点）を 10 Hz で送るだけです（`STEREO_OBS`）。最後の砦が Pi や UART の生死に左右されないようにするためです。
+- **止める条件を足すだけ。** LiDAR・超音波とは OR です。点が 300 ms 届かなければ、ステレオは何も言わず、LiDAR・超音波だけで判定します。
+- **前進のときだけ。** ステレオは前にしか付いていません。
+- **直近 2 フレームの両方で、予想進路に 5 点以上**あるときだけ当たりにします。床の取り違えや車体の映り込みは、単発のことが多いからです。
+- 点は撮影から（Pi の処理＋通信＋受信後の経過）だけ古いので、その間に進んだ分と、2 フレーム目を待つ 0.1 s の分を、予想進路の長さに足します。
+- **車体の外形を前へ 5 cm、横へ 4 cm 広げた範囲の点は数えません。** 車体の外に出ている前輪やナックルを、ステレオが障害物として拾うためです。その手前は、LiDAR・超音波の 5 cm の近接が受け持ちます。
+- TELEMETRY の `flags` で、`STEREO_OK`（bit27、点が届いている）と `AUTO_STOP_STEREO`（bit28、介入のきっかけにステレオの点が含まれる）を上位へ知らせます。
+- ARM 中は、走行モードに関わらず照合を回して点を送ります（手動の運転でも最後の砦として働くため。電流は約 +150 mA）。
+
+しきい値は、実際の走行記録 2 本（壁に 4 回当たったコース走行 43 秒と、当たらない周回 120 秒）を、ファームの判定に通して決めました（`tools/fwsim/stereo_replay`）。
+最小の点数を 3 にすると、周回中に LiDAR と無関係な「ステレオだけの検出」が 32 区間出ます。作動したら止まるまで解除しないので、これは完全停止になります。5 点にすると 8 区間に減りました。
+確認のフレームを 3 にすると、衝突の前に検出できる時間が大きく縮むので、2 のままにしています。
+
+!!! warning "実機ではまだ確かめていない"
+    ファームは書き込んでおらず、実機で止めたときの停止距離と誤検知は確かめていません。上の 8 区間のように、ステレオだけの誤検知はまだ残ります。
+    上位の文書は「コースを走るときは `auto_stop` を切る運用」を前提にしています。
+
 ## 再 ARM の扱い
 
 フェイルセーフのあと、ARM を立てたままの COMMAND が流れ続けていると、緊急停止を解除した瞬間（車のそばでボタン 2 を押した瞬間）や
@@ -198,8 +221,8 @@ $$
 - **初期化の完了を条件に走行を許可する。** MD の起動待ち、ステア中心の較正。
 - **フェイルセーフ側の動作も「何を保持するか」を決める。** 舵は直進に戻さない。
 
-[vehicle-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/vehicle/vehicle.c
-[vehicle-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/vehicle/vehicle.h
-[heartbeat-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/comm/heartbeat.c
-[power-h]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/power/power.h
-[app-c]: https://github.com/banbatakumi/AutonomousCar/blob/FW/MainBoard_V3/Program/MainF446RE_V3/src/app/app.c
+[vehicle-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/vehicle/vehicle.c
+[vehicle-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/vehicle/vehicle.h
+[heartbeat-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/comm/heartbeat.c
+[power-h]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/power/power.h
+[app-c]: https://github.com/banbatakumi/AutonomousCar/blob/main/Program/MainF446RE_V3/src/app/app.c
